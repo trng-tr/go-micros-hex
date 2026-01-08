@@ -17,7 +17,7 @@ Objectif : isoler le **domaine** (métier) des détails techniques (HTTP, DB, me
 - `payment-service` : service de paiements
 - `gateway-proxy` : API Gateway point d’entrée dans l'univers des microservices de l'app
 
-## 🗂️ Structure `customer-micros`  en archi hexagonale
+## 🗂️ Structure `customer-microservice`  en archi hexagonale
 ```
 customer-microservice/
 ├── cmd/
@@ -49,20 +49,26 @@ customer-microservice/
 │   ├── infrastructure/                                     # 3️⃣ ADAPTERS (extérieur)
 │   │   ├── web/
 │   │   │   └── http/
-│   │   │       ├── handlers/                               # hanlder avec gin-gonic
-│   │   │       │   ├── customer_handler.go
-│   │   │       │   └── address_handler.go
-│   │   │       ├── dtos/
+│   │   │       ├── handlers/
+|   |   |       |   ├── contract/                           # hanlder avec gin-gonic
+│   │   │       │   |    ├── customer_handler.go            # interface CustomerHandlerService 
+│   │   │       │   |    └── address_handler.go             # interface AddressHandlerService 
+|   |   |       |   ├── impl/ 
+|   |   |       |        ├── customer_handler_impl.go       # impl CustomerHandlerService 
+│   │   │       │        └── address_handler_impl.go        # implAddressHandlerService        
+|   |   |       ├── routes/
+|   |   |       |   └── route_register.go                   # engeristrement des routes avec gin.Engine                                 
+│   │   │       ├── dtos/                                   # ✅  les user dtos                             
 │   │   │       │   ├── customer_request.go
 │   │   │       │   ├── customer_response.go
 │   │   │       │   ├── address_request.go
 │   │   │       │   └── address_response.go
-│   │   │       └── mappers/
+│   │   │       └── mappers/                                # ✅ mappers de transformation
 │   │   │           ├── customer_mapper.go
 │   │   │           └── address_mapper.go
 │   │   │
-│   │   ├──  persistence/                                   # save dans la db
-│   │   |       └── postgres/
+│   │   ├──  persistence/                                   # ✅ save dans la db
+│   │   |       └── postgres/                       
 │   │   |           ├── db.go                               # db *sql.DB par exemple
 │   │   |           ├── models/
 │   │   |           │   ├── customer_table.go               # model de données de la table customers
@@ -70,7 +76,7 @@ customer-microservice/
 │   │   |           ├── mappers/
 │   │   |           │   ├── customer_mapper.go
 │   │   |           │   └── address_mapper.go
-│   │   |           └── repositories/
+│   │   |           └── repositories/                       # ✅ implementation des outputs ports
 │   │   |               ├── customer_out_port_impl.go       # impl du customer output port
 |   |   |               └── address_out_port_impl.go        # impl de address output port
 │   │   |
