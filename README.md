@@ -24,72 +24,72 @@ Objectif : isoler le **domaine** (métier) des détails techniques (HTTP, DB, me
 ---
 
 ## 🗂️ Structure `customer-microservice`  en archi hexagonale
-
 customer-microservice/
 ├── cmd/
 │   └── api/
-│       ├── main.go                    # composition root (wiring)
-│       ├── routes.go                  # register routes (gin/nethttp)
-│       └── container.go               # build dependencies (db, repos, usecases, handlers)
+│       ├── main.go            # composition root (wiring)
+│       ├── routes.go          # register routes (gin/nethttp)
+│       └── container.go       # build dependencies (db, repos, usecases, handlers)
 │
 ├── internal/
-│   ├── domain/                        # ✅ OBJETS MÉTIER (purs)
-│   │   ├── customer.go                # objet métier Customer
-│   │   ├── address.go                 # objet métier Address 
-│   │   ├── validators/
-│   │   │   ├── email.go               # ex: validation email
-│   │   │   └── zip_code.go             # ex: validation ZipCode
-│   │   │   └── phone_num.go             # ex: validation phoneNum
-│   │   └── errors.go                  # erreurs métier (ErrInvalid..., etc.)
+│   ├── domain/                # OBJETS MÉTIER (purs)
+│   │   ├── customer.go        # objet métier Customer
+│   │   ├── address.go         # objet métier Address
+│   │   ├── valueobjects/      # Value Objects (validation métier)
+│   │   │   ├── email.go
+│   │   │   ├── phone.go
+│   │   │   └── zipcode.go
+│   │   └── errors.go          # erreurs métier
 │   │
-│   ├── application/                   # ✅ USE CASES + PORTS
+│   ├── application/           # USE CASES + PORTS
 │   │   ├── ports/
-│   │   │   ├── in/                    # le microservice expose les ports d'entrée
-│   │   │   │   ├── customer_uc.go     # Create/Get/Update/Delete Customer
-│   │   │   │   └── address_uc.go      # Create/Get/Update/Delete Address
-│   │   │   └── out/                   # ce dont l’app a besoin pour envoyer à l'extérieur
-│   │   │       ├── customer_service.go   # interface CustomerService
-│   │   │       └── address_service.go    # interface AddressService
+│   │   │   ├── in/
+│   │   │   │   ├── customer_uc.go
+│   │   │   │   └── address_uc.go
+│   │   │   └── out/
+│   │   │       ├── customer_service.go
+│   │   │       └── address_service.go
 │   │   │
-│   │   └── usecase/                   # impl des ports d'entrée (in)
-│   │       ├── customer_service.go    # CustomerServiceimpln (usecase customer)
-│   │       └── address_service.go     # AddressServiceimpl (usecase address)
+│   │   └── usecase/
+│   │       ├── customer_service.go
+│   │       └── address_service.go
 │   │
-│   ├── infrastructure/                # ✅ ADAPTERS (l'exterieur)
+│   ├── infrastructure/        # ADAPTERS (extérieur)
 │   │   ├── web/
 │   │   │   └── http/
 │   │   │       ├── handlers/
 │   │   │       │   ├── customer_handler.go
 │   │   │       │   └── address_handler.go
-│   │   │       ├── dtos/              # ✅ DTOs API
+│   │   │       ├── dtos/
 │   │   │       │   ├── customer_request.go
 │   │   │       │   ├── customer_response.go
 │   │   │       │   ├── address_request.go
 │   │   │       │   └── address_response.go
-│   │   │       └── mappers/           # ✅ DTO ⇄ DOMAIN
+│   │   │       └── mappers/
 │   │   │           ├── customer_mapper.go
 │   │   │           └── address_mapper.go
 │   │   │
-│   │   ├── persistence/
-│   │   │   └── postgres/
-│   │   │       ├── db.go              # connection, ping
-│   │   │       ├── models/            # ✅ OBJETS BDD (Row models)
-│   │   │       │   ├── customer_row.go
-│   │   │       │   └── address_row.go
-│   │   │       ├── mappers/           # ✅ DOMAIN ⇄ DB
-│   │   │       │   ├── customer_mapper.go
-│   │   │       │   └── address_mapper.go
-│   │   │       └── repositories/      # impl des output ports
-│   │   │           ├── customer_repo.go
-│   │   │           └── address_repo.go
-│   │   │
-│   │   └── clock/                     # ex: time provider (optionnel)
-│   │       └── system_clock.go
+│   │   └── persistence/
+│   │       └── postgres/
+│   │           ├── db.go
+│   │           ├── models/
+│   │           │   ├── customer_row.go
+│   │           │   └── address_row.go
+│   │           ├── mappers/
+│   │           │   ├── customer_mapper.go
+│   │           │   └── address_mapper.go
+│   │           └── repositories/
+│   │               ├── customer_repo.go
+│   │               └── address_repo.go
 │   │
-│   └── config/
-│       ├── config.go                  # env vars -> Config struct
-│       └── logger.go                  # zap/logrus/std log
+│   ├── config/
+│   │   ├── config.go
+│   │   └── logger.go
 │
-└── migrations/
-    ├── 001_create_addresses.sql
-    └── 002_create_customers.sql
+├── migrations/
+│   ├── 001_create_addresses.sql
+│   └── 002_create_customers.sql
+│
+├── .gitignore
+├── go.mod
+└── README.md
