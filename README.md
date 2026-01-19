@@ -92,32 +92,3 @@ customer-microservice/
 └── README.md
 ```
 **Note**: Les autres microservices: product-microservice, order-microservice payment-microservice possèdent le même organigramme.
-
-                ┌──────────────┐
-                │   API Client │
-                │ (Postman/Web)│
-                └───────┬──────┘
-                        │ HTTP
-                ┌───────▼────────┐
-                │   API Gateway  │   (optionnel)
-                └───────┬────────┘
-                        │
-        ┌───────────────┼───────────────────┐
-        │               │                   │
-┌───────▼───────┐ ┌─────▼────────┐ ┌────────▼────────┐
-│ CustomerSvc   │ │ ProductSvc   │ │  OrderSvc       │
-│  		    	│ │ 			 │ │				 │
-└───────┬───────┘ └─────┬────────┘ └────────┬────────┘
-        │               │					│
-		│				│					│
-		▼				▼					│
-   Customer DB      Product DB          Order DB
-                                            │
-                                            │
-                                   ┌────────▼────────┐
-                                   │ PaymentSvc      │
-                                   │ 				 │
-                                   └────────┬────────┘
-                                            │
-											▼
-                                       Payment DB
