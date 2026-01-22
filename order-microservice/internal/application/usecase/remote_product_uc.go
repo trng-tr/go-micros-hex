@@ -46,22 +46,22 @@ func (o *RemoteProductServiceImpl) GetRemoteStockByProductID(ctx context.Context
 }
 
 // SetRemoteStockQuantity immplement interface
-func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, stockID int64, newQuantity int64) error {
+func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, productID int64, newQuantity int64) error {
 	values := map[string]int64{
-		"product_id": stockID,
+		"product_id": productID,
 		"quantity":   newQuantity,
 	}
 	if err := checkValue(values); err != nil {
 		return err
 	}
 
-	stock, err := o.outSvc.GetRemoteStockByProductID(ctx, stockID)
+	stock, err := o.outSvc.GetRemoteStockByProductID(ctx, productID)
 	if err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
 	}
 	stock.Quantity -= newQuantity
 	// call remote service to send for update remote stock
-	if err := o.outSvc.SetRemoteStockQuantity(ctx, stock); err != nil {
+	if err := o.outSvc.SetRemoteStockQuantity(ctx, productID, stock); err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
 	}
 

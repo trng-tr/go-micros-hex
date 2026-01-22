@@ -5,18 +5,6 @@ import (
 	"github.com/trng-tr/order-microservice/internal/infrastructure/in/http/dtos"
 )
 
-func ToDomainCustomer(dtoResp dtos.CustomerResponse) domain.Customer {
-	return domain.Customer{
-		ID:          dtoResp.ID,
-		Firstname:   dtoResp.Firstname,
-		Lastname:    dtoResp.Lastname,
-		Genda:       domain.Genda(dtoResp.Genda),
-		Email:       dtoResp.Email,
-		PhoneNumber: dtoResp.PhoneNumber,
-		Status:      domain.CustomerStatus(dtoResp.Status),
-	}
-}
-
 func ToCustomerResponse(customer domain.Customer) dtos.LightCustomerResponse {
 	return dtos.LightCustomerResponse{
 		ID:          customer.ID,
@@ -26,5 +14,16 @@ func ToCustomerResponse(customer domain.Customer) dtos.LightCustomerResponse {
 		Email:       customer.Email,
 		PhoneNumber: customer.PhoneNumber,
 		Status:      string(customer.Status),
+	}
+}
+
+func ToProductResponse(bsProduct domain.Product) dtos.ProductResponse {
+	return dtos.ProductResponse{
+		ID:          bsProduct.ID,
+		Sku:         bsProduct.Sku,
+		Category:    string(bsProduct.Category),
+		ProductName: bsProduct.ProductName,
+		Description: bsProduct.Description,
+		IsActive:    bsProduct.IsActive,
 	}
 }

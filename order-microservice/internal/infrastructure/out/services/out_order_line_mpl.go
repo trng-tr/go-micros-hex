@@ -17,16 +17,6 @@ func NewOutOrderLineServiceImpl(repo OrderLineRepo) *OutOrderLineServiceImpl {
 	return &OutOrderLineServiceImpl{repo: repo}
 }
 
-// CreateOrderLine implements OutOrderLineService
-func (o *OutOrderLineServiceImpl) CreateOrderLine(ctx context.Context, orderLine domain.OrderLine) (domain.OrderLine, error) {
-	model := mappers.ToOrderLineModel(orderLine)
-	savedOrderLine, err := o.repo.Save(ctx, model)
-	if err != nil {
-		return domain.OrderLine{}, err
-	}
-	return mappers.ToOrderLine(savedOrderLine), nil
-}
-
 // GetOrderLineByID implements OutOrderLineService
 func (o *OutOrderLineServiceImpl) GetOrderLineByID(ctx context.Context, id int64) (domain.OrderLine, error) {
 	model, err := o.repo.FindByID(ctx, id)

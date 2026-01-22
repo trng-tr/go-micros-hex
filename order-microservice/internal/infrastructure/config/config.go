@@ -34,7 +34,7 @@ func (app *AppConfig) LoadConfig() {
 	app.Port = getEnv("APP2_HOSTPORT", "8083")
 	app.DB_URL = getEnv("ORDER_DB_URL", "postgres://go-app3-user:go-app3-pass@localhost:5435/goapp3db?sslmode=disable")
 	app.CustomerBaseUrl = getEnv("CUSTOMER_BASE_URL", "http://localhost:8081/api/v1")
-	app.ProductBaseUrl = getEnv("CUSTOMER_BASE_URL", "http://localhost:8082/api/v1")
+	app.ProductBaseUrl = getEnv("PRODUCT_BASE_URL", "http://localhost:8082/api/v1")
 }
 
 func getEnv(key, defalutValue string) string {

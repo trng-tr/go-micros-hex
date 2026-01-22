@@ -17,23 +17,6 @@ func NewOrderLineRepoImpl(db *sql.DB) *OrderLineRepoImpl {
 	return &OrderLineRepoImpl{db: db}
 }
 
-// Save implement OrderLineRepo
-func (o *OrderLineRepoImpl) Save(ctx context.Context, model models.OrderLineModel) (models.OrderLineModel, error) {
-	query := `INSERT INTO orderlines(order_id,product_id,quantity)
-	VALUES($1,$2,$3) 
-	RETURNING id`
-	if err := o.db.QueryRowContext(
-		ctx,
-		query,
-		model.OrderID,
-		model.ProductID,
-		model.Quantity,
-	).Scan(&model.ID); err != nil {
-		return models.OrderLineModel{}, err
-	}
-	return model, nil
-}
-
 // FindByID implement OrderLineRepo
 func (o *OrderLineRepoImpl) FindByID(ctx context.Context, id int64) (models.OrderLineModel, error) {
 	query := `SELECT id,order_id,product_id,quantity FROM orderlines WHERE id=$1`

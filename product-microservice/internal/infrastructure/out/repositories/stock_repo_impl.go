@@ -103,13 +103,13 @@ func (s *StockRepositoryImpl) DeleteO(ctx context.Context, id int64) error {
 }
 
 // UpdateStockQuantity implement interface StockRepository, set quantity
-func (s *StockRepositoryImpl) UpdateStockQuantity(ctx context.Context, stockID int64, quantity int64) (models.StockModel, error) {
+func (s *StockRepositoryImpl) UpdateStockQuantity(ctx context.Context, productID int64, quantity int64) (models.StockModel, error) {
 	var query = `UPDATE stocks 
 	SET quantity = $2
-	WHERE id = $1
+	WHERE product_id = $1
 	RETURNING id,name,product_id,quantity,updated_at`
 	var newStock models.StockModel
-	if err := s.db.QueryRowContext(ctx, query, stockID, quantity).Scan(
+	if err := s.db.QueryRowContext(ctx, query, productID, quantity).Scan(
 		&newStock.ID, &newStock.Name, &newStock.ProductID, &newStock.Quantity, &newStock.UpdatedAt); err != nil {
 		return models.StockModel{}, err
 	}

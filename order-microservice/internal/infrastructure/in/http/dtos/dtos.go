@@ -38,3 +38,7 @@ func NewResponse(status, message string) *Response {
 		CreatedAt: time.Now().Format(time.RFC3339),
 	}
 }
+
+type AjustStockQuantityRequest struct {
+	Quantity int64 `json:"quantity" binding:"required"`
+}

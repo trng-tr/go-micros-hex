@@ -52,7 +52,7 @@ func (o *OutStockServiceImpl) GetAllStocks(ctx context.Context) ([]domain.Stock,
 
 // UpdateStockQuantity implement OutStockService interface
 func (o *OutStockServiceImpl) UpdateStockQuantity(ctx context.Context, stock domain.Stock) (domain.Stock, error) {
-	model, err := o.repo.UpdateStockQuantity(ctx, stock.ID, stock.Quantity)
+	model, err := o.repo.UpdateStockQuantity(ctx, stock.ProductID, stock.Quantity)
 	if err != nil {
 		return domain.Stock{}, err
 	}

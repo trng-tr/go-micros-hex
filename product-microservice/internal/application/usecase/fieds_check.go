@@ -65,7 +65,7 @@ func checkStockInputs(fields map[string]int64) error {
 }
 
 func checkInputStockQty(q int64) error {
-	if q <= 0 {
+	if q < 0 {
 		return fmt.Errorf("%w", errInvalidStockQty)
 	}
 	return nil

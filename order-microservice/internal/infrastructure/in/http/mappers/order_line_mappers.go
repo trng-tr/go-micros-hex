@@ -14,18 +14,8 @@ func ToBusinessOrderLine(request dtos.OrderLineRequest) domain.OrderLine {
 
 func ToOrderLineResponse(orderLine domain.OrderLine, product domain.Product) dtos.OrderLineResponse {
 	return dtos.OrderLineResponse{
-		ID: orderLine.ID,
-		ProductResponse: dtos.ProductResponse{
-			ID:          product.ID,
-			Sku:         product.Sku,
-			ProductName: product.ProductName,
-			Description: product.Description,
-			PriceResponse: dtos.PriceResponse{
-				UnitPrice: product.Price.UnitPrice,
-				Currency:  string(product.Price.Currency),
-			},
-			IsActive: product.IsActive,
-		},
-		Quantity: orderLine.Quantity,
+		ID:              orderLine.ID,
+		ProductResponse: ToProductResponse(product),
+		Quantity:        orderLine.Quantity,
 	}
 }

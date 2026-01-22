@@ -47,17 +47,7 @@ func (o *RemoteProductServiceImpl) GetRemoteProductByID(ctx context.Context, id 
 		return domain.Product{}, err
 	}
 
-	domainProduct := domain.Product{
-		ID:          remoteProductResponse.ID,
-		Sku:         remoteProductResponse.Sku,
-		ProductName: remoteProductResponse.ProductName,
-		Description: remoteProductResponse.Description,
-		Price: domain.Price{
-			UnitPrice: remoteProductResponse.PriceResponse.UnitPrice,
-			Currency:  domain.Currency(remoteProductResponse.PriceResponse.Currency),
-		},
-		IsActive: remoteProductResponse.IsActive,
-	}
+	domainProduct := toDomainProduct(remoteProductResponse)
 
 	return domainProduct, nil
 }
@@ -84,8 +74,8 @@ func (o *RemoteProductServiceImpl) GetRemoteStockByProductID(ctx context.Context
 }
 
 // SetRemoteStockQuantity implement interface
-func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, stock domain.Stock) error {
-	baseUrl := fmt.Sprintf(o.baseUrl+"/stocks/set-qte/%d", stock.ID)
+func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, productID int64, stock domain.Stock) error {
+	baseUrl := fmt.Sprintf(o.baseUrl+"/stocks/set-qte/%d", productID)
 
 	// equivalent of remote request 👇
 	stockQuantityRequest := struct {
@@ -124,5 +114,20 @@ func utilMap(stockResponse dtos.StockResponse) domain.Stock {
 		Name:      stockResponse.Name,
 		ProductID: stockResponse.ProductID,
 		Quantity:  stockResponse.Quantity,
+	}
+}
+
+func toDomainProduct(remoteResponse dtos.ProductResponse) domain.Product {
+	return domain.Product{
+		ID:          remoteResponse.ID,
+		Sku:         remoteResponse.Sku,
+		Category:    domain.Category(remoteResponse.Category),
+		ProductName: remoteResponse.ProductName,
+		Description: remoteResponse.Description,
+		Price: domain.Price{
+			UnitPrice: remoteResponse.PriceResponse.UnitPrice,
+			Currency:  domain.Currency(remoteResponse.PriceResponse.Currency),
+		},
+		IsActive: remoteResponse.IsActive,
 	}
 }

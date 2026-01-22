@@ -2,11 +2,6 @@ package routes
 
 import "github.com/gin-gonic/gin"
 
-type OrderHandler interface {
-	HandleCreateOrder(ctx *gin.Context)
-	HandleGetOrderByID(ctx *gin.Context)
-}
-
 type RouteRegistration struct {
 	handler OrderHandler
 }
@@ -20,6 +15,9 @@ func (rr *RouteRegistration) RegisterRoutes() *gin.Engine {
 
 	api := engine.Group("/api/v1")
 	api.POST("/orders", rr.handler.HandleCreateOrder)
+	api.GET("/orders", rr.handler.HandleGetAllOrder)
 	api.GET("/orders/:id", rr.handler.HandleGetOrderByID)
+	api.DELETE("/orders/:id", rr.handler.HandleDeleteOrder)
+	api.PUT("/orderslines/:id", rr.handler.HandleIncreaseOrderLineQuantity)
 	return engine
 }

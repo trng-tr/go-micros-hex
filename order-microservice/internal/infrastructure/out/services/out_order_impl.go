@@ -5,7 +5,6 @@ import (
 
 	"github.com/trng-tr/order-microservice/internal/domain"
 	"github.com/trng-tr/order-microservice/internal/infrastructure/out/mappers"
-	"github.com/trng-tr/order-microservice/internal/infrastructure/out/models"
 )
 
 // OutOrderServiceImpl implement interface OutOrderService
@@ -14,12 +13,12 @@ type OutOrderServiceImpl struct {
 }
 
 // NewOutOrderServiceImpl DI by constructor
-func NewOutOrderServiceImpl(repo Repository[models.OrderModel, int64]) *OutOrderServiceImpl {
+func NewOutOrderServiceImpl(repo OrderRepo) *OutOrderServiceImpl {
 	return &OutOrderServiceImpl{repo: repo}
 }
 
 // CreateOrder implement interface OutOrderService
-func (o *OutOrderServiceImpl) CreateOrder(ctx context.Context, order domain.Order) (domain.Order, error) {
+func (o *OutOrderServiceImpl) CreateOrderWithOrderLines(ctx context.Context, order domain.Order) (domain.Order, error) {
 	model := mappers.ToOrderModel(order)
 	saved, err := o.repo.Save(ctx, model)
 	if err != nil {

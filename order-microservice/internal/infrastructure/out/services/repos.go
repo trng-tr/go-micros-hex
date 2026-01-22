@@ -8,6 +8,7 @@ import (
 
 // OrderRepo extends Repository
 type OrderRepo interface {
+	Save(ctx context.Context, orderModel models.OrderModel) (models.OrderModel, error)
 	Repository[models.OrderModel, int64]
 }
 

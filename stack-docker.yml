@@ -17,6 +17,7 @@ services:
       timeout: 5s
       retries: 10
     networks: [go-backend-net]
+    restart: unless-stopped
   # products db
   pg-product-db:
     image: ${DB_IMAGE}
@@ -33,6 +34,7 @@ services:
       retries: 10
     networks: [go-backend-net]
     volumes: [pgproductdata:/var/lib/postgresql/data]
+    restart: unless-stopped
   #orders db 
   pg-order-db:
     image: ${DB_IMAGE}
@@ -49,6 +51,7 @@ services:
       timeout: 5s
       retries: 10
     networks: [go-backend-net]
+    restart: unless-stopped
  
  # ------ go backend servers (microservices apis) ----------------
  #customer microservice
@@ -95,6 +98,8 @@ services:
       APP_HOSTNAME: ${APP_HOSTNAME}
       APP3_HOSTPORT: ${APP3_HOSTPORT}
       ORDER_DB_URL: ${ORDER_DB_URL}
+      CUSTOMER_BASE_URL: ${CUSTOMER_BASE_URL}
+      PRODUCT_BASE_URL: ${PRODUCT_BASE_URL}
     depends_on:
       pg-order-db:
         condition: service_healthy

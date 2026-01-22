@@ -27,7 +27,7 @@ func main() {
 	var outOrderLineSvc out.OutOrderLineService = services.NewOutOrderLineServiceImpl(orderLineRepo)
 	var remoteProductSvc out.RemoteProductService = services.NewRemoteProductServiceImpl(appConf.ProductBaseUrl)
 	var outRemoteCustomerSvc out.RemoteCustomerService = services.NewRemoteCustomerServiceImpl(appConf.CustomerBaseUrl)
-	var inOrderSvc in.InOrderService = usecase.NewOrderUseCase(outOrderSvc, outRemoteCustomerSvc)
+	var inOrderSvc in.InOrderService = usecase.NewOrderUseCase(outOrderSvc, outRemoteCustomerSvc, remoteProductSvc)
 	var inOrderLineSvc in.InOrderLineService = usecase.NewOrderLineUseCase(outOrderLineSvc, outOrderSvc, remoteProductSvc)
 	var inRemoteCustomer in.RemoteCustomerService = usecase.NewRemoteCustomerServiceImpl(outRemoteCustomerSvc)
 	var inRemoteProduct in.RemoteProductService = usecase.NewRemoteProductServiceImpl(remoteProductSvc)

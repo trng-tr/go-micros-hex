@@ -30,9 +30,9 @@ func (i *InStockServiceImpl) CreateStock(ctx context.Context, stk domain.Stock) 
 		return domain.Stock{}, err
 	}
 
-	/*if err := checkStockName(stk.Name); err != nil {
+	if err := checkStockName(stk.Name); err != nil {
 		return domain.Stock{}, err
-	}*/
+	}
 	if _, err := i.prodOutService.GetProductByID(ctx, stk.ProductID); err != nil {
 		return domain.Stock{}, fmt.Errorf("%w:%v", errObjectNotFound, err)
 	}
@@ -66,19 +66,22 @@ func (i *InStockServiceImpl) GetAllStocks(ctx context.Context) ([]domain.Stock, 
 	if err != nil {
 		return nil, fmt.Errorf("%w:%v", errPrintingObjects, err)
 	}
+	if len(stocks) == 0 {
+		return nil, fmt.Errorf("%w", errNoDataRegistered)
+	}
 
 	return stocks, nil
 }
 
 // SetStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, stockID int64, newQuantity int64) (domain.Stock, error) {
-	if err := checkInputId(stockID); err != nil {
+func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, productID int64, newQuantity int64) (domain.Stock, error) {
+	if err := checkInputId(productID); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(newQuantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.GetStockByID(ctx, stockID)
+	stock, err := i.GetStockByProductID(ctx, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -92,14 +95,14 @@ func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, stockID int64
 }
 
 // IncreaseStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, stockID int64, quantity int64) (domain.Stock, error) {
-	if err := checkInputId(stockID); err != nil {
+func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) {
+	if err := checkInputId(productID); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(quantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.stockOutService.GetStockByID(ctx, stockID)
+	stock, err := i.GetStockByProductID(ctx, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -115,14 +118,14 @@ func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, stockID 
 }
 
 // IncreaseStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) DecreaseStockQuantity(ctx context.Context, stockID int64, quantity int64) (domain.Stock, error) {
-	if err := checkInputId(stockID); err != nil {
+func (i *InStockServiceImpl) DecreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) {
+	if err := checkInputId(productID); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(quantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.stockOutService.GetStockByID(ctx, stockID)
+	stock, err := i.GetStockByProductID(ctx, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}

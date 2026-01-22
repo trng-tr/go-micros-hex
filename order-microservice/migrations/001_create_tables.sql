@@ -12,4 +12,12 @@ CREATE TABLE IF NOT EXISTS orderlines (
     product_id BIGINT NOT NULL,
     quantity BIGINT NOT NULL CHECK(quantity>0),
     CONSTRAINT fk_orderline_order FOREIGN KEY (order_id) REFERENCES orders(id)
+    ON DELETE CASCADE
 );
+
+ALTER TABLE orderlines
+ADD CONSTRAINT fk_orderlines_orders
+FOREIGN KEY (order_id) REFERENCES orders(id)
+ON DELETE CASCADE;
+
+ALTER TABLE orderlines DROP CONSTRAINT fk_orderline_order;

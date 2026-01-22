@@ -19,8 +19,8 @@ type InStockService interface {
 	CreateStock(ctx context.Context, stk domain.Stock) (domain.Stock, error)
 	GetStockByID(ctx context.Context, id int64) (domain.Stock, error)
 	GetAllStocks(ctx context.Context) ([]domain.Stock, error)
-	SetStockQuantity(ctx context.Context, stockID int64, newQuantity int64) (domain.Stock, error)   //replace quantity
-	IncreaseStockQuantity(ctx context.Context, stockID int64, quantity int64) (domain.Stock, error) // encrease
-	DecreaseStockQuantity(ctx context.Context, stockID int64, quantity int64) (domain.Stock, error) //decrease
+	SetStockQuantity(ctx context.Context, productID int64, newQuantity int64) (domain.Stock, error)   //replace quantity
+	IncreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) // encrease
+	DecreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) //decrease
 	GetStockByProductID(ctx context.Context, productID int64) (domain.Stock, error)
 }

@@ -7,6 +7,7 @@ type Order struct {
 	CustomerID int64 //remote api: 8081
 	CreatedAt  time.Time
 	Status     OrderStatus
+	Lines      []OrderLine
 }
 
 type OrderLine struct {

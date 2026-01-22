@@ -7,20 +7,30 @@ import (
 
 // order mappers
 func ToOrderModel(order domain.Order) models.OrderModel {
+	var lines []models.OrderLineModel
+	for _, bsLine := range order.Lines {
+		lines = append(lines, ToOrderLineModel(bsLine))
+	}
 	return models.OrderModel{
 		ID:         order.ID,
 		CustomerID: order.CustomerID,
 		CreatedAt:  order.CreatedAt,
 		Status:     string(order.Status),
+		Lines:      lines,
 	}
 }
 
 func ToOrder(model models.OrderModel) domain.Order {
+	var lines []domain.OrderLine
+	for _, modelLine := range model.Lines {
+		lines = append(lines, ToOrderLine(modelLine))
+	}
 	return domain.Order{
 		ID:         model.ID,
 		CustomerID: model.CustomerID,
 		CreatedAt:  model.CreatedAt,
 		Status:     domain.OrderStatus(model.Status),
+		Lines:      lines,
 	}
 }
 

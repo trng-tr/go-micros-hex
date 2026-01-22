@@ -83,6 +83,9 @@ func (h *StockHandlerServiceImpl) HandleSetStockQuantity(ctx *gin.Context) {
 		return
 	}
 	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
+	if !ok {
+		return
+	}
 	bsStock, err := h.stckInPort.SetStockQuantity(ctx.Request.Context(), id, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return

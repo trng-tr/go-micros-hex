@@ -47,15 +47,19 @@ func (o *RemoteCustomerServiceImpl) GetRemoteCustomerByID(ctx context.Context, i
 		return domain.Customer{}, err
 	}
 
-	domainCustomer := domain.Customer{
-		ID:          remoteCustomerResponse.ID,
-		Firstname:   remoteCustomerResponse.Firstname,
-		Lastname:    remoteCustomerResponse.Lastname,
-		Genda:       domain.Genda(remoteCustomerResponse.Genda),
-		Email:       remoteCustomerResponse.Email,
-		PhoneNumber: remoteCustomerResponse.PhoneNumber,
-		Status:      domain.CustomerStatus(remoteCustomerResponse.Status),
-	}
+	domainCustomer := toDomainCustomer(remoteCustomerResponse)
 
 	return domainCustomer, nil
+}
+
+func toDomainCustomer(dtoResp dtos.CustomerResponse) domain.Customer {
+	return domain.Customer{
+		ID:          dtoResp.ID,
+		Firstname:   dtoResp.Firstname,
+		Lastname:    dtoResp.Lastname,
+		Genda:       domain.Genda(dtoResp.Genda),
+		Email:       dtoResp.Email,
+		PhoneNumber: dtoResp.PhoneNumber,
+		Status:      domain.CustomerStatus(dtoResp.Status),
+	}
 }

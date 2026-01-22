@@ -19,18 +19,44 @@ func NewOrderRepoImpl(db *sql.DB) *OrderRepoImpl {
 
 // Save implement OrderRepo
 func (o *OrderRepoImpl) Save(ctx context.Context, model models.OrderModel) (models.OrderModel, error) {
-	query := `INSERT INTO orders (customer_id,created_at,status)
+	tx, err := o.db.BeginTx(ctx, nil)
+	if err != nil {
+		return models.OrderModel{}, err
+	}
+	defer tx.Rollback()
+	// 1) insert order 👇
+	queryOrder := `INSERT INTO orders (customer_id,created_at,status)
 	VALUES ($1,$2,$3)
 	RETURNING id`
-	if err := o.db.QueryRowContext(
+	if err := tx.QueryRowContext(
 		ctx,
-		query,
+		queryOrder,
 		model.CustomerID,
 		model.CreatedAt,
 		model.Status,
 	).Scan(&model.ID); err != nil {
 		return models.OrderModel{}, err
 	}
+
+	// 2) insert ordelines 👇
+	queryLine := `INSERT INTO orderlines(order_id,product_id,quantity)
+	VALUES($1,$2,$3) 
+	RETURNING id`
+	for i := range model.Lines {
+		model.Lines[i].OrderID = model.ID
+		if err := tx.QueryRowContext(ctx, queryLine,
+			model.Lines[i].OrderID,
+			model.Lines[i].ProductID,
+			model.Lines[i].Quantity,
+		).Scan(&model.Lines[i].ID); err != nil {
+			return models.OrderModel{}, err
+		}
+	}
+	// 2) commit 👇
+	if err := tx.Commit(); err != nil {
+		return models.OrderModel{}, err
+	}
+
 	return model, nil
 }
 
