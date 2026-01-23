@@ -24,6 +24,10 @@ func ToProductResponse(bsProduct domain.Product) dtos.ProductResponse {
 		Category:    string(bsProduct.Category),
 		ProductName: bsProduct.ProductName,
 		Description: bsProduct.Description,
-		IsActive:    bsProduct.IsActive,
+		PriceResponse: dtos.PriceResponse{
+			UnitPrice: bsProduct.Price.UnitPrice,
+			Currency:  string(bsProduct.Price.Currency),
+		},
+		IsActive: bsProduct.IsActive,
 	}
 }

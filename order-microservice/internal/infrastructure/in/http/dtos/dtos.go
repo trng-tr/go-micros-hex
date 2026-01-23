@@ -39,6 +39,6 @@ func NewResponse(status, message string) *Response {
 	}
 }
 
-type AjustStockQuantityRequest struct {
+type AjustQuantityRequest struct {
 	Quantity int64 `json:"quantity" binding:"required"`
 }

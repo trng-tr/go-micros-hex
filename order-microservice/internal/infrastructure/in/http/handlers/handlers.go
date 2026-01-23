@@ -150,7 +150,7 @@ func (o *OrderHandlerImpl) HandleDeleteOrder(ctx *gin.Context) {
 
 // HandleIncreaseOrderLineQuantity implement interface OrderHandler
 func (o *OrderHandlerImpl) HandleIncreaseOrderLineQuantity(ctx *gin.Context) {
-	var request dtos.AjustStockQuantityRequest
+	var request dtos.AjustQuantityRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(fail, err.Error()))
 		return
@@ -161,6 +161,31 @@ func (o *OrderHandlerImpl) HandleIncreaseOrderLineQuantity(ctx *gin.Context) {
 	}
 	var getRequestContext = ctx.Request.Context()
 	orderLine, err := o.inOrderLineSvc.IncreaseOrderLineQuantity(getRequestContext, id, request.Quantity)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+		return
+	}
+	product, err := o.inRemoteProdSvc.GetRemoteProductByID(getRequestContext, orderLine.ProductID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+	}
+
+	ctx.JSON(http.StatusAccepted, mappers.ToOrderLineResponse(orderLine, product))
+}
+
+// HandleDecreaseOrderLineQuantity implement interface OrderHandler
+func (o *OrderHandlerImpl) HandleDecreaseOrderLineQuantity(ctx *gin.Context) {
+	var request dtos.AjustQuantityRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(fail, err.Error()))
+		return
+	}
+	id, ok := getID(ctx)
+	if !ok {
+		return
+	}
+	var getRequestContext = ctx.Request.Context()
+	orderLine, err := o.inOrderLineSvc.DecreaseOrderLineQuantity(getRequestContext, id, request.Quantity)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return

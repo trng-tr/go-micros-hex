@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/trng-tr/order-microservice/internal/application/out"
@@ -91,7 +90,6 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 	// 6) update remote stock AFTER DB commit (best-effort)
 	// ⚠️ Si ça échoue, tu dois compenser (annuler commande) ou marquer FAILED.👇
 	for _, stock := range stocksToUpdate {
-		log.Printf("UPDATING STOCK product=%d newQty=%d", stock.ProductID, stock.Quantity)
 		if err := o.remoteProductSvc.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
 		}

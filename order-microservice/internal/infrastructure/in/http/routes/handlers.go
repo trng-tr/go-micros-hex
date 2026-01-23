@@ -8,5 +8,5 @@ type OrderHandler interface {
 	HandleGetAllOrder(ctx *gin.Context)
 	HandleDeleteOrder(ctx *gin.Context)
 	HandleIncreaseOrderLineQuantity(ctx *gin.Context)
-	//HandleDecreaseOrderLineQuantity(ctx *gin.Context)
+	HandleDecreaseOrderLineQuantity(ctx *gin.Context)
 }

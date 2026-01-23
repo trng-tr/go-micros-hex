@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/trng-tr/order-microservice/internal/application/out"
@@ -81,12 +82,32 @@ func (o *OrderLineUseCase) IncreaseOrderLineQuantity(ctx context.Context, id int
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
+	//check remote product exist again and is active
+	product, err := o.remoteProduct.GetRemoteProductByID(ctx, savedOrderLine.ProductID)
+	if err != nil {
+		return domain.OrderLine{}, err
+	}
+	if ok := product.IsActive; !ok {
+		return domain.OrderLine{}, errors.New("error: remote product status not allowed")
+	}
+	//check if there is enough quantity in stock
+	stock, err := o.remoteProduct.GetRemoteStockByProductID(ctx, savedOrderLine.ProductID)
+	if err != nil {
+		return domain.OrderLine{}, err
+	}
+	if (stock.Quantity - quantity) < 0 {
+		return domain.OrderLine{}, fmt.Errorf("%w for product %d", errNotEnough, stock.ProductID)
+	}
 	savedOrderLine.Quantity += quantity
 	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedOrderLine)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
-
+	stock.Quantity -= quantity
+	// call remote to update stock
+	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
+		return domain.OrderLine{}, err
+	}
 	return UpdateOrderLine, nil
 }
 
@@ -103,10 +124,26 @@ func (o *OrderLineUseCase) DecreaseOrderLineQuantity(ctx context.Context, id int
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
+
+	//check remote product exist again
+	_, err = o.remoteProduct.GetRemoteProductByID(ctx, savedOrderLine.ProductID)
+	if err != nil {
+		return domain.OrderLine{}, err
+	}
+	//check stock is recheable
+	stock, err := o.remoteProduct.GetRemoteStockByProductID(ctx, savedOrderLine.ProductID)
+	if err != nil {
+		return domain.OrderLine{}, err
+	}
 	savedOrderLine.Quantity -= quantity
 	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedOrderLine)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
+	}
+
+	stock.Quantity += quantity
+	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
+		return domain.OrderLine{}, err
 	}
 
 	return UpdateOrderLine, nil

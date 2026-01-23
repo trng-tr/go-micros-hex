@@ -75,7 +75,7 @@ func (o *OrderRepoImpl) FindByID(ctx context.Context, id int64) (models.OrderMod
 
 // FindAll implement OrderRepo
 func (o *OrderRepoImpl) FindAll(ctx context.Context) ([]models.OrderModel, error) {
-	query := "SELECT id,customer_id,created_at,status FROM orders"
+	query := "SELECT id,customer_id,created_at,status FROM orders ORDER BY created_at DESC"
 	rows, err := o.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
