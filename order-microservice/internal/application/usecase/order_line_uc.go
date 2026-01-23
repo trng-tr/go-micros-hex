@@ -103,6 +103,7 @@ func (o *OrderLineUseCase) IncreaseOrderLineQuantity(ctx context.Context, id int
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
+	//prendre du stock la quantité augmentée à la ligne de commande
 	stock.Quantity -= quantity
 	// call remote to update stock
 	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
@@ -126,6 +127,7 @@ func (o *OrderLineUseCase) DecreaseOrderLineQuantity(ctx context.Context, id int
 	}
 
 	//check remote product exist again
+	// for decrease quantity, no need to check if prodct is active or not
 	_, err = o.remoteProduct.GetRemoteProductByID(ctx, savedOrderLine.ProductID)
 	if err != nil {
 		return domain.OrderLine{}, err
@@ -135,12 +137,15 @@ func (o *OrderLineUseCase) DecreaseOrderLineQuantity(ctx context.Context, id int
 	if err != nil {
 		return domain.OrderLine{}, err
 	}
+	if savedOrderLine.Quantity <= quantity {
+		return domain.OrderLine{}, errors.New("error: quantity to decrease exceeds current order line quantity")
+	}
 	savedOrderLine.Quantity -= quantity
 	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedOrderLine)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
-
+	//remettre en stock la quantité diminiuée de la ligne de commande
 	stock.Quantity += quantity
 	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
 		return domain.OrderLine{}, err
