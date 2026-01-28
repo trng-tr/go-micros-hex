@@ -20,7 +20,7 @@ func NewOutOutStockServiceImpl(repo StockRepository) *OutStockServiceImpl {
 
 // CreateStock implement OutStockService interface
 func (o *OutStockServiceImpl) CreateStock(ctx context.Context, stk domain.Stock) (domain.Stock, error) {
-	model, err := o.repo.SaveO(ctx, mappers.ToStockModel(stk))
+	model, err := o.repo.Save(ctx, mappers.ToStockModel(stk))
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -29,7 +29,7 @@ func (o *OutStockServiceImpl) CreateStock(ctx context.Context, stk domain.Stock)
 
 // GetStockByID implement OutStockService interface
 func (o *OutStockServiceImpl) GetStockByID(ctx context.Context, id int64) (domain.Stock, error) {
-	model, err := o.repo.FindOByID(ctx, id)
+	model, err := o.repo.FindByID(ctx, id)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -38,7 +38,7 @@ func (o *OutStockServiceImpl) GetStockByID(ctx context.Context, id int64) (domai
 
 // GetAllStocks implement OutStockService interface
 func (o *OutStockServiceImpl) GetAllStocks(ctx context.Context) ([]domain.Stock, error) {
-	models, err := o.repo.FindAllO(ctx)
+	models, err := o.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}

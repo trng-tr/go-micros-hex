@@ -18,10 +18,15 @@ type ProductPatchRequest struct {
 	UnitPrice   *int64  `json:"unit_price,omitempty" binding:"omitempty,gt=0"`
 }
 
+type Locationrequest struct {
+	Ville       string  `json:"ville" binding:"required"`
+	Description *string `json:"description,omitempty"`
+}
 type StockRequest struct {
-	Name      string `json:"stock_name"`
-	ProductID int64  `json:"product_id"`
-	Quantity  int64  `json:"quantity"`
+	Name       string `json:"stock_name"`
+	ProductID  int64  `json:"product_id"`
+	LocationID int64  `json:"location_id"`
+	Quantity   int64  `json:"quantity"`
 }
 
 // StockQuantityRequest struct to set,increase or decrease quantity of a stock

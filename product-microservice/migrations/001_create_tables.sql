@@ -1,4 +1,12 @@
 -- Active: 1768502153680@@127.0.0.1@5434@goapp2db
+CREATE TABLE IF NOT EXISTS locations (
+   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   ville VARCHAR(100) NOT NULL UNIQUE,
+   description VARCHAR(100) DEFAULT NULL,
+   created_at TIMESTAMP NOT NULL,
+   updated_at TIMESTAMP DEFAULT NULL
+);
+
 CREATE TABLE IF NOT EXISTS products (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sku VARCHAR(20) UNIQUE NOT NULL,
@@ -15,8 +23,12 @@ CREATE TABLE IF NOT EXISTS products (
  CREATE TABLE IF NOT EXISTS stocks(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    product_id BIGINT NOT NULL UNIQUE,
+    location_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
     quantity BIGINT NOT NULL CHECK (quantity >= 0),
     updated_at TIMESTAMP NOT NULL,
-    CONSTRAINT fk_stock FOREIGN KEY(product_id) REFERENCES products(id)
- )
+    CONSTRAINT fk_stock_location FOREIGN KEY(location_id) REFERENCES locations(id),
+    CONSTRAINT fk_stock_product FOREIGN KEY(product_id) REFERENCES products(id),
+    CONSTRAINT unique_stock_product_location UNIQUE(product_id,location_id)
+ );
+

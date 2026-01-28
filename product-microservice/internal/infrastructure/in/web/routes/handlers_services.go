@@ -15,6 +15,12 @@ type ProductHandlerService interface {
 	HandleGetProductBySku(ctx *gin.Context)
 }
 
+type LocationHandlerService interface {
+	HandleCreateLocation(ctx *gin.Context)
+	HandleGetLocationByID(ctx *gin.Context)
+	HandleGetAllLocation(ctx *gin.Context)
+}
+
 type StockHanderService interface {
 	HandleCreateStock(ctx *gin.Context)
 	HandleGetStockByID(ctx *gin.Context)

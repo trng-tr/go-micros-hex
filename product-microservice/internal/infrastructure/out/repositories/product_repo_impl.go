@@ -18,7 +18,7 @@ func NewProductRepositoryImpl(db *sql.DB) *ProductRepositoryImpl {
 }
 
 // SaveO implement interface ProductRepository
-func (p *ProductRepositoryImpl) SaveO(ctx context.Context, o models.ProductModel) (models.ProductModel, error) {
+func (p *ProductRepositoryImpl) Save(ctx context.Context, o models.ProductModel) (models.ProductModel, error) {
 	var query = `INSERT INTO products (sku,category,product_name,description,unit_price,currency,created_at,updated_at,is_active)
 	VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
 	RETURNING id`
@@ -42,7 +42,7 @@ func (p *ProductRepositoryImpl) SaveO(ctx context.Context, o models.ProductModel
 }
 
 // FindOByID implement interface ProductRepository
-func (p *ProductRepositoryImpl) FindOByID(ctx context.Context, id int64) (models.ProductModel, error) {
+func (p *ProductRepositoryImpl) FindByID(ctx context.Context, id int64) (models.ProductModel, error) {
 	query := `SELECT id,sku,category,product_name,description,unit_price,currency,created_at,updated_at,is_active
 	FROM products
 	WHERE id=$1`
@@ -66,7 +66,7 @@ func (p *ProductRepositoryImpl) FindOByID(ctx context.Context, id int64) (models
 }
 
 // FindAllO implement interface ProductRepository
-func (p *ProductRepositoryImpl) FindAllO(ctx context.Context) ([]models.ProductModel, error) {
+func (p *ProductRepositoryImpl) FindAll(ctx context.Context) ([]models.ProductModel, error) {
 	var query string = `
 	SELECT id,sku,category,product_name,description,unit_price,currency,created_at,updated_at,is_active
 	 FROM products`

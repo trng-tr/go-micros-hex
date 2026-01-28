@@ -28,9 +28,6 @@ customer-microservice/
 │   ├── domain/                                             # 1️⃣ OBJETS MÉTIER (purs)
 │   │   ├── business_customer.go                            # BusinessCustomer objet métier Customer
 │   │   ├── business_address.go                             # BusinessAddress objet métier Address
-│   │   ├── validator/          
-│   │   │   ├── fieds_checker.go                            # validation des champs du métier
-│   │   |   └── errors.go                                       # erreurs métier
 │   │   │
 │   ├── application/                                        # 2️⃣ USE CASES + PORTS
 │   │   ├── ports/
@@ -43,6 +40,8 @@ customer-microservice/
 │   │   │   └── usecase/                                    # ✅ usecase implemente les input ports
 │   │   │       ├── customer_usecase.go
 │   │   │       └── address_usecase.go
+│   │   │       ├── fieds_checker.go                        # validation des champs du métier
+│   │   |       └── errors.go                               # erreurs métier
 │   │   │
 │   ├── infrastructure/                                     # 3️⃣ ADAPTERS (extérieur)         
 │   │   ├── in/
@@ -63,7 +62,7 @@ customer-microservice/
 │   │   │           ├── customer_mapper.go
 │   │   │           └── address_mapper.go
 │   │   │
-│   │   ├── out/                                           # ✅ save dans la db
+│   │   ├── out/                                            # ✅ save dans la db
 │   │   |       └── services/                       
 │   │   |           ├── db.go                               # db *sql.DB par exemple
 │   │   |           ├── models/
@@ -80,15 +79,15 @@ customer-microservice/
 │   │   |               ├── customer_out_port_impl.go       # OutCustomerServiceImpl impl du customer output port
 |   |   |               └── address_out_port_impl.go        # OutAddressServiceImpl impl de address output port
 │   │   |
-│   |   ├── config/                                          # 4️⃣ la config des env vars
+│   |   ├── config/                                         # 4️⃣ la config des env vars
 │   │       └── config.go
 │   │
-├── migrations/
-│   ├── 001_create_addresses.sql
-│   └── 002_create_customers.sql
+├── migrations/                                             
+│   └── 001_create_tables.sql                               
 │
 ├── .gitignore
 ├── go.mod
+├── go.sum
 └── README.md
 ```
 **Note**: Les autres microservices: product-microservice, order-microservice payment-microservice possèdent le même organigramme.

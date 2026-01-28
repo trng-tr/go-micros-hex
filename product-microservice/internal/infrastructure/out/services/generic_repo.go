@@ -8,7 +8,7 @@ import "context"
 
 // Repository common methods for Product and stock repos
 type Repository[O any, ID comparable] interface {
-	SaveO(ctx context.Context, o O) (O, error)
-	FindAllO(ctx context.Context) ([]O, error)
-	FindOByID(ctx context.Context, id ID) (O, error)
+	Save(ctx context.Context, o O) (O, error)
+	FindAll(ctx context.Context) ([]O, error)
+	FindByID(ctx context.Context, id ID) (O, error)
 }

@@ -29,3 +29,10 @@ type OutStockService interface {
 type OutUuidGeneratorService interface {
 	GenerateUuid() string
 }
+
+// OutLocationService chaque stock est localisée dans une ville
+type OutLocationService interface {
+	CreateLocation(ctx context.Context, localtion domain.Location) (domain.Location, error)
+	GetLocationByID(ctx context.Context, id int64) (domain.Location, error)
+	GetAllLocation(ctx context.Context) ([]domain.Location, error)
+}

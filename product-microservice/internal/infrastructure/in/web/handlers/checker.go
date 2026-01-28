@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,11 +23,13 @@ func getId(ctx *gin.Context) (int64, bool) {
 	var rawID = ctx.Param("id")
 	rawID = strings.TrimSpace(rawID)
 	if rawID == "" {
+		log.Println(errInputEmptyId)
 		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(dtos.Fail, errInputEmptyId.Error()))
 		return 0, false
 	}
 	id, err := strconv.ParseInt(rawID, 10, 64)
 	if err != nil {
+		log.Println(err.Error())
 		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(dtos.Fail, errInputNotDigit.Error()))
 		return 0, false
 	}
@@ -52,6 +55,7 @@ func checkBindJsonError[Request any](ctx *gin.Context) (Request, bool) {
 	var request Request
 	//get json payload and write it in request
 	if err := ctx.ShouldBindJSON(&request); err != nil {
+		log.Println(err.Error())
 		var Zero Request
 		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(dtos.Fail, err.Error()))
 		return Zero, false

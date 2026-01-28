@@ -29,3 +29,15 @@ func ToAddressResponse(bs domain.Address) dtos.AddressResponse {
 		Complement:   bs.Complement,
 	}
 }
+
+func ToLightAddressResponse(bsAddress domain.Address) dtos.LightAddressResponse {
+	return dtos.LightAddressResponse{
+		StreetNumber: bsAddress.StreetNumber,
+		StreetName:   bsAddress.StreetName,
+		ZipCode:      bsAddress.ZipCode,
+		City:         bsAddress.City,
+		Region:       bsAddress.Region,
+		Country:      bsAddress.Country,
+		Complement:   bsAddress.Complement,
+	}
+}

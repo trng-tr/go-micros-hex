@@ -25,16 +25,16 @@ func ToCustomerResponse(bs domain.Customer, bsAddress domain.Address) dtos.Custo
 		updatedDate = &s
 	}
 	return dtos.CustomerResponse{
-		ID:              bs.ID,
-		Firstname:       bs.Firstname,
-		Lastname:        bs.Lastname,
-		Genda:           string(bs.Genda),
-		Email:           bs.Email,
-		PhoneNumber:     bs.PhoneNumber,
-		Status:          string(bs.Status),
-		AddressResponse: ToAddressResponse(bsAddress),
-		CreatedAt:       bs.CreatedAt.Format(dateFormat),
-		UpdatedAt:       updatedDate,
+		ID:                   bs.ID,
+		Firstname:            bs.Firstname,
+		Lastname:             bs.Lastname,
+		Genda:                string(bs.Genda),
+		Email:                bs.Email,
+		PhoneNumber:          bs.PhoneNumber,
+		Status:               string(bs.Status),
+		LightAddressResponse: ToLightAddressResponse(bsAddress),
+		CreatedAt:            bs.CreatedAt.Format(dateFormat),
+		UpdatedAt:            updatedDate,
 	}
 }
 

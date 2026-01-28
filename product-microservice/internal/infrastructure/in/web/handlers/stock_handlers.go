@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,13 +13,19 @@ import (
 
 // StockHandlerServiceImpl implement handlers interface
 type StockHandlerServiceImpl struct {
-	stckInPort in.InStockService   //DI input port interface
-	prodInPort in.InProductService //DI input port interface
+	stckInPort     in.InStockService    //DI input port interface
+	prodInPort     in.InProductService  //DI input port interface
+	locationInPort in.InLocationService //DI input port interface
 }
 
 // NewStockHandlerServiceImpl injection par constructeur
-func NewStockHandlerServiceImpl(stckInPort in.InStockService, prodInPort in.InProductService) *StockHandlerServiceImpl {
-	return &StockHandlerServiceImpl{stckInPort: stckInPort, prodInPort: prodInPort}
+func NewStockHandlerServiceImpl(stckInPort in.InStockService, prodInPort in.InProductService,
+	locationInPort in.InLocationService) *StockHandlerServiceImpl {
+	return &StockHandlerServiceImpl{
+		stckInPort:     stckInPort,
+		prodInPort:     prodInPort,
+		locationInPort: locationInPort,
+	}
 }
 
 // HandlerCreateStock implement interface
@@ -27,16 +34,21 @@ func (h *StockHandlerServiceImpl) HandleCreateStock(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	bsStock, err := h.stckInPort.CreateStock(ctx.Request.Context(), mappers.ToBusinessStock(webRequest))
+	var ctxRequest context.Context = ctx.Request.Context()
+	bsStock, err := h.stckInPort.CreateStock(ctxRequest, mappers.ToBusinessStock(webRequest))
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, buildStokResponse(bsStock, bsProduct))
+	ctx.JSON(http.StatusCreated, buildStokResponse(bsStock, bsProduct, bsLocation))
 }
 
 // HandlerGetStockByID implement interface
@@ -45,16 +57,20 @@ func (h *StockHandlerServiceImpl) HandleGetStockByID(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	bsStock, err := h.stckInPort.GetStockByID(ctx.Request.Context(), id)
+	var ctxRequest context.Context = ctx.Request.Context()
+	bsStock, err := h.stckInPort.GetStockByID(ctxRequest, id)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-
-	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct))
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct, bsLocation))
 
 }
 
@@ -65,12 +81,17 @@ func (h *StockHandlerServiceImpl) HandleGetAllStocks(ctx *gin.Context) {
 		return
 	}
 	var stocksResponses = make([]dtos.StockResponse, 0, len(bsStocks))
+	var ctxRequest context.Context = ctx.Request.Context()
 	for _, stock := range bsStocks {
-		bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), stock.ProductID)
+		bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, stock.ProductID)
 		if ok := checkInternalServerError(err, ctx); !ok {
 			return
 		}
-		stocksResponses = append(stocksResponses, buildStokResponse(stock, bsProduct))
+		bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, stock.LocationID)
+		if ok := checkInternalServerError(err, ctx); !ok {
+			return
+		}
+		stocksResponses = append(stocksResponses, buildStokResponse(stock, bsProduct, bsLocation))
 	}
 
 	ctx.JSON(http.StatusOK, stocksResponses)
@@ -86,15 +107,20 @@ func (h *StockHandlerServiceImpl) HandleSetStockQuantity(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	bsStock, err := h.stckInPort.SetStockQuantity(ctx.Request.Context(), id, quantityRequest.Quantity)
+	var ctxRequest context.Context = ctx.Request.Context()
+	bsStock, err := h.stckInPort.SetStockQuantity(ctxRequest, id, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct))
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct, bsLocation))
 }
 
 // HandlerIncreaseStockQuantity implement interface
@@ -104,15 +130,20 @@ func (h *StockHandlerServiceImpl) HandleIncreaseStockQuantity(ctx *gin.Context) 
 		return
 	}
 	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
-	bsStock, err := h.stckInPort.IncreaseStockQuantity(ctx.Request.Context(), id, quantityRequest.Quantity)
+	var ctxRequest context.Context = ctx.Request.Context()
+	bsStock, err := h.stckInPort.IncreaseStockQuantity(ctxRequest, id, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct))
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct, bsLocation))
 }
 
 // HandlerDecreaseStockQuantity implement interface
@@ -121,16 +152,21 @@ func (h *StockHandlerServiceImpl) HandleDecreaseStockQuantity(ctx *gin.Context) 
 	if !ok {
 		return
 	}
+	var ctxRequest context.Context = ctx.Request.Context()
 	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
-	bsStock, err := h.stckInPort.DecreaseStockQuantity(ctx.Request.Context(), id, quantityRequest.Quantity)
+	bsStock, err := h.stckInPort.DecreaseStockQuantity(ctxRequest, id, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct))
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct, bsLocation))
 }
 
 // HandleGetStockByProductID implement interface
@@ -139,18 +175,23 @@ func (h *StockHandlerServiceImpl) HandleGetStockByProductID(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	bsStock, err := h.stckInPort.GetStockByProductID(ctx.Request.Context(), id)
+	var ctxRequest context.Context = ctx.Request.Context()
+	bsStock, err := h.stckInPort.GetStockByProductID(ctxRequest, id)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
-	bsProduct, err := h.prodInPort.GetProductByID(ctx.Request.Context(), bsStock.ProductID)
+	bsProduct, err := h.prodInPort.GetProductByID(ctxRequest, bsStock.ProductID)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct))
+	bsLocation, err := h.locationInPort.GetLocationByID(ctxRequest, bsStock.LocationID)
+	if ok := checkInternalServerError(err, ctx); !ok {
+		return
+	}
+	ctx.JSON(http.StatusOK, buildStokResponse(bsStock, bsProduct, bsLocation))
 }
 
-func buildStokResponse(stock domain.Stock, product domain.Product) dtos.StockResponse {
-	return mappers.ToStockResponse(stock, product)
+func buildStokResponse(stock domain.Stock, product domain.Product, location domain.Location) dtos.StockResponse {
+	return mappers.ToStockResponse(stock, product, location)
 }

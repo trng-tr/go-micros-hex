@@ -8,13 +8,14 @@ import "github.com/gin-gonic/gin"
 
 //Routes injecte by DI ProductHandlerService and StockHanderService
 type Routes struct {
-	phs ProductHandlerService //DI
-	shs StockHanderService    //DI
+	phs ProductHandlerService  //DI
+	shs StockHanderService     //DI
+	lhs LocationHandlerService //DI
 }
 
 //NewRoutes DI by constructor
-func NewRoutes(phs ProductHandlerService, shs StockHanderService) *Routes {
-	return &Routes{phs: phs, shs: shs}
+func NewRoutes(phs ProductHandlerService, shs StockHanderService, lhs LocationHandlerService) *Routes {
+	return &Routes{phs: phs, shs: shs, lhs: lhs}
 }
 
 //RegisterRoutes func method
@@ -29,6 +30,12 @@ func (r *Routes) RegisterApiRoutes() *gin.Engine {
 	api.GET("/products/sku/:sku", r.phs.HandleGetProductBySku)
 	api.PATCH("/products/:id", r.phs.HandlePatchProduct)
 	api.DELETE("/products/:id", r.phs.HandleDeleteProduct)
+
+	//for location service
+	api.POST("/locations", r.lhs.HandleCreateLocation)
+	api.GET("/locations", r.lhs.HandleGetAllLocation)
+	api.GET("/locations/:id", r.lhs.HandleGetLocationByID)
+
 	//for stock service
 	api.POST("/stocks", r.shs.HandleCreateStock)
 	api.GET("/stocks", r.shs.HandleGetAllStocks)

@@ -20,7 +20,7 @@ func NewOutProductServiceImpl(repo ProductRepository) *OutProductServiceImpl {
 // SaveProduct implement output port OutProductService
 func (o *OutProductServiceImpl) SaveProduct(ctx context.Context, prod domain.Product) (domain.Product, error) {
 	var model = mappers.ToProductModel(prod)
-	savedModel, err := o.repo.SaveO(ctx, model)
+	savedModel, err := o.repo.Save(ctx, model)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -29,7 +29,7 @@ func (o *OutProductServiceImpl) SaveProduct(ctx context.Context, prod domain.Pro
 
 // SaveProduct implement output port OutProductService
 func (o *OutProductServiceImpl) GetProductByID(ctx context.Context, id int64) (domain.Product, error) {
-	model, err := o.repo.FindOByID(ctx, id)
+	model, err := o.repo.FindByID(ctx, id)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -38,7 +38,7 @@ func (o *OutProductServiceImpl) GetProductByID(ctx context.Context, id int64) (d
 
 // GetAllProducts implement output port OutProductService
 func (o *OutProductServiceImpl) GetAllProducts(ctx context.Context) ([]domain.Product, error) {
-	models, err := o.repo.FindAllO(ctx)
+	models, err := o.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
