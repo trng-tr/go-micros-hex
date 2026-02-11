@@ -121,7 +121,18 @@ customer-microservice/
 ```
 Les autres microservices: product-microservice, order-microservice possèdent le même organigramme.
 
-<img width="506" height="595" alt="microservices" src="https://github.com/user-attachments/assets/4dfbf3e3-c894-4e9b-90ab-755499a02538" />
+## Architecture Microservices
+
+![Architecture HexaShop](microservices.png)
+
+LÉGENDE
+-------
+- Chaque microservice est autonome et possède sa propre base de données
+- Les communications inter-services se font via HTTP REST
+- OrderSvc orchestre les appels vers les microservices CustomerSvc et ProductSvc
+- Kong Api Gateway agit comme point d’entrée unique (API Gateway)
+- Architecture Hexagonale basée sur les principes Ports & Adapters
+
 
 Le domaine ne dépend jamais :
 - ni du HTTP
