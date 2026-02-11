@@ -188,11 +188,11 @@ Gérer les **clients** et leurs informations associées.
 - Exposition d’une API REST
 
 ### Exemples d’API
-GET /api/v1/customers
-GET /api/v1/customers/{id}
-POST /api/v1/customers
-PUT /api/v1/customers/{id}
-DELETE /api/v1/customers/{id}
+- GET /api/v1/customers
+- GET /api/v1/customers/{id}
+- POST /api/v1/customers
+- PUT /api/v1/customers/{id}
+- DELETE /api/v1/customers/{id}
 
 ---
 
@@ -217,14 +217,14 @@ Gérer le **catalogue produit**, les **stocks** et les **localisations**.
 - Consultation et mise à jour
 
 ### APIs principales
-POST /api/v1/locations
-POST /api/v1/products
-POST /api/v1/stocks
-GET /api/v1/products/{id}
-GET /api/v1/locations/{id}
-GET /api/v1/stocks
-GET /api/v1/stocks/locations/{locationId}/products/{productId}
-PUT /api/v1/stocks/locations/{locationId}/products/{productId}/set-qte
+- POST /api/v1/locations
+- POST /api/v1/products
+- POST /api/v1/stocks
+- GET /api/v1/products/{id}
+- GET /api/v1/locations/{id}
+- GET /api/v1/stocks
+- GET /api/v1/stocks/locations/{locationId}/products/{productId}
+- PUT /api/v1/stocks/locations/{locationId}/products/{productId}/set-qte
 Body json attendu pour la mise à jour (PUT) :
 ```
 {
@@ -280,16 +280,15 @@ Gérer les **commandes** et orchestrer les appels vers les autres microservices.
 - Utiliser Kong comme point d’entrée principal
 
 ## Variables d’environnement (exemple)
-
-PORT
-DB_HOST
-DB_PORT
-DB_NAME
-DB_USER
-DB_PASSWORD
-
-PRODUCT_SERVICE_URL
-CUSTOMER_SERVICE_URL
+- APP_HOSTNAME 
+- PORT
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
+- PRODUCT_SERVICE_URL (Order Microservice)
+- CUSTOMER_SERVICE_URL (Order Microservice)
 
 # 7. Gestion des erreurs
 
