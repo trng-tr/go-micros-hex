@@ -7,15 +7,17 @@ import (
 
 func ToBusinessOrderLine(request dtos.OrderLineRequest) domain.OrderLine {
 	return domain.OrderLine{
-		ProductID: request.ProductID,
-		Quantity:  request.Quantity,
+		ProductID:  request.ProductID,
+		LocationID: request.LocationID,
+		Quantity:   request.Quantity,
 	}
 }
 
-func ToOrderLineResponse(orderLine domain.OrderLine, product domain.Product) dtos.OrderLineResponse {
+func ToOrderLineResponse(orderLine domain.OrderLine, product domain.Product, location domain.Location) dtos.OrderLineResponse {
 	return dtos.OrderLineResponse{
-		ID:              orderLine.ID,
-		ProductResponse: ToProductResponse(product),
-		Quantity:        orderLine.Quantity,
+		ID:               orderLine.ID,
+		ProductResponse:  ToProductResponse(product),
+		LocationResponse: ToLocationResponse(location),
+		Quantity:         orderLine.Quantity,
 	}
 }

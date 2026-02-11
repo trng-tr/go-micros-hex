@@ -24,12 +24,17 @@ func (o *OrderHandlerImpl) buildOrderResponse(ctx *gin.Context, order domain.Ord
 	var orderLinesResponses []dtos.OrderLineResponse = make([]dtos.OrderLineResponse, 0, len(lines))
 	var getReqCtx = ctx.Request.Context()
 	for _, line := range lines {
+		location, err := o.inRemoteLocation.GetRemoteLocationByID(ctx.Request.Context(), line.LocationID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+			return dtos.OrderResponse{}, err
+		}
 		product, err := o.inRemoteProdSvc.GetRemoteProductByID(getReqCtx, line.ProductID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 			return dtos.OrderResponse{}, err
 		}
-		orderLinesResponses = append(orderLinesResponses, mappers.ToOrderLineResponse(line, product))
+		orderLinesResponses = append(orderLinesResponses, mappers.ToOrderLineResponse(line, product, location))
 	}
 
 	customer, err := o.inRemoteCustomerSvc.GetRemoteCustomerByID(ctx.Request.Context(), order.CustomerID)

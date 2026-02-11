@@ -24,7 +24,7 @@ func (i *InLocationServiceImpl) CreateLocation(ctx context.Context, location dom
 	inputs := map[string]string{
 		"city": location.Ville,
 	}
-	if err := checkInputs(inputs); err != nil {
+	if err := checkInputs1(inputs); err != nil {
 		return domain.Location{}, err
 	}
 

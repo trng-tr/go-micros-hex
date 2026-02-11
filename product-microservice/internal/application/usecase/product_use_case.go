@@ -28,7 +28,7 @@ func (i *InProductServiceImpl) SaveProduct(ctx context.Context, prod domain.Prod
 		"description": prod.Description,
 	}
 
-	if err := checkInputs(inputFieds); err != nil {
+	if err := checkInputs1(inputFieds); err != nil {
 		return domain.Product{}, err
 	}
 
@@ -52,17 +52,16 @@ func (i *InProductServiceImpl) SaveProduct(ctx context.Context, prod domain.Prod
 	return savdProd, nil
 }
 
-// GetProductByID implement interface InProductService
-func (i *InProductServiceImpl) GetProductByID(ctx context.Context, id int64) (domain.Product, error) {
-	if err := checkInputId(id); err != nil {
+func (i *InProductServiceImpl) GetProductByID(ctx context.Context, productID int64) (domain.Product, error) {
+	if err := checkInputId(productID); err != nil {
 		return domain.Product{}, err
 	}
-	bsPrd, err := i.outputPort.GetProductByID(ctx, id)
+	savedPorduct, err := i.outputPort.GetProductByID(ctx, productID)
 	if err != nil {
-		return domain.Product{}, fmt.Errorf("%w", errObjectNotFound)
+		return domain.Product{}, err
 	}
 
-	return bsPrd, nil
+	return savedPorduct, nil
 }
 
 // GetAllProducts implement interface InProductService
@@ -78,17 +77,20 @@ func (i *InProductServiceImpl) GetAllProducts(ctx context.Context) ([]domain.Pro
 }
 
 // PatchProduct implement interface InProductService
-func (i *InProductServiceImpl) PatchProduct(ctx context.Context, id int64, patch domain.PatchProduct) (domain.Product, error) {
-	if err := checkInputId(id); err != nil {
+func (i *InProductServiceImpl) PatchProduct(ctx context.Context, productID int64, patch domain.PatchProduct) (domain.Product, error) {
+	inputsvalues := map[string]int64{
+		"product_id": productID,
+	}
+	if err := checkInputs2(inputsvalues); err != nil {
 		return domain.Product{}, err
 	}
-	product, err := i.outputPort.GetProductByID(ctx, id)
+	product, err := i.outputPort.GetProductByID(ctx, productID)
 	if err != nil {
-		return domain.Product{}, fmt.Errorf("%w with id %d", errObjectNotFound, id)
+		return domain.Product{}, err
 	}
 	product.ApplyPatchMapper(patch)
 	// call outputservice to save changes
-	savedProd, err := i.outputPort.PatchProduct(ctx, id, product)
+	savedProd, err := i.outputPort.PatchProduct(ctx, productID, product)
 	if err != nil {
 		return domain.Product{}, fmt.Errorf("%w:%v", errSavingObject, err)
 	}
@@ -97,15 +99,18 @@ func (i *InProductServiceImpl) PatchProduct(ctx context.Context, id int64, patch
 }
 
 // DeleteProduct implement interface InProductService
-func (i *InProductServiceImpl) DeleteProduct(ctx context.Context, id int64) error {
-	if err := checkInputId(id); err != nil {
+func (i *InProductServiceImpl) DeleteProduct(ctx context.Context, productID int64) error {
+	inputsvalues := map[string]int64{
+		"product_id": productID,
+	}
+	if err := checkInputs2(inputsvalues); err != nil {
 		return err
 	}
-	if _, err := i.GetProductByID(ctx, id); err != nil {
+	if _, err := i.outputPort.GetProductByID(ctx, productID); err != nil {
 		return fmt.Errorf("%w:%v", errObjectNotFound, err)
 	}
 
-	if err := i.outputPort.DeleteProduct(ctx, id); err != nil {
+	if err := i.outputPort.DeleteProduct(ctx, productID); err != nil {
 		return fmt.Errorf("%w", err)
 	}
 

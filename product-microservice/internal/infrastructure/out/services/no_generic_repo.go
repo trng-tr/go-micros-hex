@@ -23,6 +23,6 @@ type ProductRepository interface {
 type StockRepository interface {
 	Repository[models.StockModel, int64] //extend
 	//other method for contract 👇
-	UpdateStockQuantity(ctx context.Context, productID int64, quantity int64) (models.StockModel, error)
-	FindStockByProductID(ctx context.Context, productID int64) (models.StockModel, error)
+	UpdateStockQuantity(ctx context.Context, LocationID, ProductID int64, quantity int64) (models.StockModel, error)
+	FindStockByLocationIDAndProductID(ctx context.Context, locationID, productID int64) (models.StockModel, error)
 }

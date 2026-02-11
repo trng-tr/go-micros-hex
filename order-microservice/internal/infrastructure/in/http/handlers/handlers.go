@@ -17,16 +17,18 @@ type OrderHandlerImpl struct {
 	inOrderLineSvc      in.InOrderLineService
 	inRemoteCustomerSvc in.RemoteCustomerService
 	inRemoteProdSvc     in.RemoteProductService
+	inRemoteLocation    in.RemoteLocationService
 }
 
 // NewOrderHandlerImpl DI by constuctor
-func NewOrderHandlerImpl(inOrderSvc in.InOrderService, inOrderLineSvc in.InOrderLineService,
-	inRemoteCustomerSvc in.RemoteCustomerService, inRemoteProdSvc in.RemoteProductService) *OrderHandlerImpl {
+func NewOrderHandlerImpl(order in.InOrderService, orderL in.InOrderLineService, rc in.RemoteCustomerService,
+	rp in.RemoteProductService, inRemoteLocation in.RemoteLocationService) *OrderHandlerImpl {
 	return &OrderHandlerImpl{
-		inOrderSvc:          inOrderSvc,
-		inOrderLineSvc:      inOrderLineSvc,
-		inRemoteCustomerSvc: inRemoteCustomerSvc,
-		inRemoteProdSvc:     inRemoteProdSvc,
+		inOrderSvc:          order,
+		inOrderLineSvc:      orderL,
+		inRemoteCustomerSvc: rc,
+		inRemoteProdSvc:     rp,
+		inRemoteLocation:    inRemoteLocation,
 	}
 }
 
@@ -45,15 +47,15 @@ func (o *OrderHandlerImpl) HandleCreateOrder(ctx *gin.Context) {
 		bsLines = append(bsLines, bsLine)
 	}
 
-	var getRequestContext = ctx.Request.Context()
+	var ctxReq = ctx.Request.Context()
 
-	savedOrder, err := o.inOrderSvc.CreateOrderWithOrderLines(getRequestContext, request.CustomerID, bsLines)
+	savedOrder, err := o.inOrderSvc.CreateOrderWithOrderLines(ctxReq, request.CustomerID, bsLines)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return
 	}
 
-	bsCustomer, err := o.inRemoteCustomerSvc.GetRemoteCustomerByID(getRequestContext, savedOrder.CustomerID)
+	bsCustomer, err := o.inRemoteCustomerSvc.GetRemoteCustomerByID(ctxReq, savedOrder.CustomerID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return
@@ -61,13 +63,18 @@ func (o *OrderHandlerImpl) HandleCreateOrder(ctx *gin.Context) {
 
 	var orderLinesResponses []dtos.OrderLineResponse
 	for _, line := range savedOrder.Lines {
-		product, err := o.inRemoteProdSvc.GetRemoteProductByID(getRequestContext, line.ProductID)
+		location, err := o.inRemoteLocation.GetRemoteLocationByID(ctxReq, line.LocationID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+			return
+		}
+		product, err := o.inRemoteProdSvc.GetRemoteProductByID(ctxReq, line.ProductID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 			return
 		}
 
-		orderLinesResponses = append(orderLinesResponses, mappers.ToOrderLineResponse(line, product))
+		orderLinesResponses = append(orderLinesResponses, mappers.ToOrderLineResponse(line, product, location))
 	}
 
 	var orderResponse dtos.OrderResponse = dtos.OrderResponse{
@@ -110,9 +117,9 @@ func (o *OrderHandlerImpl) HandleGetOrderByID(ctx *gin.Context) {
 }
 
 // HandleGetAllOrder implement interface OrderHandler
-func (o *OrderHandlerImpl) HandleGetAllOrder(ctx *gin.Context) {
-	var getRequestContext = ctx.Request.Context()
-	orders, err := o.inOrderSvc.GetAllOrder(getRequestContext)
+func (o *OrderHandlerImpl) HandleGetAllOrders(ctx *gin.Context) {
+	var ctxReq = ctx.Request.Context()
+	orders, err := o.inOrderSvc.GetAllOrders(ctxReq)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return
@@ -120,7 +127,7 @@ func (o *OrderHandlerImpl) HandleGetAllOrder(ctx *gin.Context) {
 
 	var orderResponses []dtos.OrderResponse = make([]dtos.OrderResponse, 0, len(orders))
 	for _, order := range orders {
-		orderlines, err := o.inOrderLineSvc.GetOrderLinesByOrderID(getRequestContext, order.ID)
+		orderlines, err := o.inOrderLineSvc.GetOrderLinesByOrderID(ctxReq, order.ID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 			return
@@ -159,18 +166,23 @@ func (o *OrderHandlerImpl) HandleIncreaseOrderLineQuantity(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	var getRequestContext = ctx.Request.Context()
-	orderLine, err := o.inOrderLineSvc.IncreaseOrderLineQuantity(getRequestContext, id, request.Quantity)
+	var ctxReq = ctx.Request.Context()
+	orderLine, err := o.inOrderLineSvc.IncreaseOrderLineQuantity(ctxReq, id, request.Quantity)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return
 	}
-	product, err := o.inRemoteProdSvc.GetRemoteProductByID(getRequestContext, orderLine.ProductID)
+	location, err := o.inRemoteLocation.GetRemoteLocationByID(ctxReq, orderLine.LocationID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+		return
+	}
+	product, err := o.inRemoteProdSvc.GetRemoteProductByID(ctxReq, orderLine.ProductID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 	}
 
-	ctx.JSON(http.StatusAccepted, mappers.ToOrderLineResponse(orderLine, product))
+	ctx.JSON(http.StatusAccepted, mappers.ToOrderLineResponse(orderLine, product, location))
 }
 
 // HandleDecreaseOrderLineQuantity implement interface OrderHandler
@@ -184,16 +196,21 @@ func (o *OrderHandlerImpl) HandleDecreaseOrderLineQuantity(ctx *gin.Context) {
 	if !ok {
 		return
 	}
-	var getRequestContext = ctx.Request.Context()
-	orderLine, err := o.inOrderLineSvc.DecreaseOrderLineQuantity(getRequestContext, id, request.Quantity)
+	var ctxReq = ctx.Request.Context()
+	line, err := o.inOrderLineSvc.DecreaseOrderLineQuantity(ctxReq, id, request.Quantity)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 		return
 	}
-	product, err := o.inRemoteProdSvc.GetRemoteProductByID(getRequestContext, orderLine.ProductID)
+	location, err := o.inRemoteLocation.GetRemoteLocationByID(ctxReq, line.LocationID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
+		return
+	}
+	product, err := o.inRemoteProdSvc.GetRemoteProductByID(ctxReq, line.ProductID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dtos.NewResponse(fail, err.Error()))
 	}
 
-	ctx.JSON(http.StatusAccepted, mappers.ToOrderLineResponse(orderLine, product))
+	ctx.JSON(http.StatusAccepted, mappers.ToOrderLineResponse(line, product, location))
 }

@@ -1,0 +1,84 @@
+_format_version: "3.0"
+_transform: true
+
+# ----------------------------
+# services
+# ----------------------------
+services:
+  - name: customer-microservice
+    url: http://go-micros-hexa-customer:8081 #container name:port
+    connect_timeout: 5000 # max time que Kong attend pour établir la connexion TCP avec le backend ms 
+    read_timeout: 5000 # max time que Kong attend pour recevoir la réponse du microservice APRÈS avoir envoyé la requête.
+    write_timeout: 5000 # temps max que Kong attend pour envoyer la requête au backend.
+    routes:
+      - name: customer-route
+        paths: ["/api/v1/customers", "/api/v1/addresses"] 
+        strip_path: false
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+
+  - name: product-microservice
+    url: http://go-micros-hexa-product:8082 #container name:port
+    connect_timeout: 5000
+    read_timeout: 5000
+    write_timeout: 5000
+    routes:
+      - name: product-route
+        paths: ["/api/v1/products", "/api/v1/locations", "/api/v1/stocks"]
+        strip_path: false
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+
+  - name: order-microservice
+    url: http://go-micros-hexa-order:8083 #container name:port
+    connect_timeout: 5000
+    read_timeout: 5000
+    write_timeout: 5000
+    routes:
+      - name: order-route
+        paths: 
+          - "/api/v1/orders"
+        strip_path: false
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  
+# ----------------------------
+# Plugins globaux (optionnels)
+# ----------------------------
+plugins:
+  - name: file-log
+    config:
+     path: "/opt/logs-file.log"
+  - name: rate-limiting
+    config:
+     minute: 120
+     policy: local
+  - name: proxy-cache
+    config:
+     response_code:
+       - 200
+     request_method:
+       - GET
+     content_type:
+       - text/plain
+       - application/json
+     cache_ttl: 300
+     strategy: memory
+  - name: cors
+    config:
+     origins:
+       - "*"
+     methods:
+       - GET
+       - POST
+       - DELETE
+       - PUT
+     headers:
+       - Accept
+       - Accept-Version
+       - Content-Length
+       - Content-MD5
+       - Content-Type
+       - Date
+       - X-Auth-Token
+     exposed_headers:
+       - X-Auth-Token
+     credentials: true
+     max_age: 3600

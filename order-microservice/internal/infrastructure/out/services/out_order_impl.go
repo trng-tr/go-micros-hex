@@ -39,7 +39,7 @@ func (o *OutOrderServiceImpl) GetOrderByID(ctx context.Context, id int64) (domai
 }
 
 // GetAllOrder implement interface OutOrderService
-func (o *OutOrderServiceImpl) GetAllOrder(ctx context.Context) ([]domain.Order, error) {
+func (o *OutOrderServiceImpl) GetAllOrders(ctx context.Context) ([]domain.Order, error) {
 	models, err := o.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err

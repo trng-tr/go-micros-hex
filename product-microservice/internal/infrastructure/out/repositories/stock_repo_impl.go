@@ -88,13 +88,13 @@ func (s *StockRepositoryImpl) FindAll(ctx context.Context) ([]models.StockModel,
 }
 
 // UpdateStockQuantity implement interface StockRepository, set quantity
-func (s *StockRepositoryImpl) UpdateStockQuantity(ctx context.Context, productID int64, quantity int64) (models.StockModel, error) {
+func (s *StockRepositoryImpl) UpdateStockQuantity(ctx context.Context, productID, LocationID int64, quantity int64) (models.StockModel, error) {
 	var query = `UPDATE stocks 
-	SET quantity = $2
-	WHERE product_id = $1
+	SET quantity = $3
+	WHERE product_id=$1 AND location_id = $2 
 	RETURNING id,name,product_id,location_id,quantity,updated_at`
 	var newStock models.StockModel
-	if err := s.db.QueryRowContext(ctx, query, productID, quantity).Scan(
+	if err := s.db.QueryRowContext(ctx, query, productID, LocationID, quantity).Scan(
 		&newStock.ID, &newStock.Name, &newStock.ProductID, &newStock.LocationID, &newStock.Quantity, &newStock.UpdatedAt); err != nil {
 		return models.StockModel{}, err
 	}
@@ -102,12 +102,12 @@ func (s *StockRepositoryImpl) UpdateStockQuantity(ctx context.Context, productID
 	return newStock, nil
 }
 
-func (s *StockRepositoryImpl) FindStockByProductID(ctx context.Context, productID int64) (models.StockModel, error) {
+func (s *StockRepositoryImpl) FindStockByLocationIDAndProductID(ctx context.Context, locationID, productID int64) (models.StockModel, error) {
 	query := `SELECT id,name,product_id,location_id,quantity,updated_at
 	FROM stocks
-	WHERE product_id=$1`
+	WHERE location_id=$1 AND product_id=$2`
 	var stock models.StockModel
-	if err := s.db.QueryRowContext(ctx, query, productID).Scan(
+	if err := s.db.QueryRowContext(ctx, query, locationID, productID).Scan(
 		&stock.ID,
 		&stock.Name,
 		&stock.ProductID,

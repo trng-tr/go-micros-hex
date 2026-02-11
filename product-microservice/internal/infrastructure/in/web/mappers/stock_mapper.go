@@ -9,13 +9,16 @@ import (
 
 func ToStockResponse(bsStock domain.Stock, bsProduct domain.Product, bsLocation domain.Location) dtos.StockResponse {
 	return dtos.StockResponse{
-		ID:       bsStock.ID,
-		Name:     bsStock.Name,
-		Quantity: bsStock.Quantity,
+		ID:         bsStock.ID,
+		Name:       bsStock.Name,
+		Quantity:   bsStock.Quantity,
+		LocationID: bsLocation.ID,
 		LightLocationResponse: dtos.LightLocationResponse{
+			ID:          bsLocation.ID,
 			Ville:       bsLocation.Ville,
 			Description: bsLocation.Description,
 		},
+		ProductID:       bsProduct.ID,
 		ProductResponse: ToProductResponse(bsProduct),
 	}
 }

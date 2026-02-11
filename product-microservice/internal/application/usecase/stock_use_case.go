@@ -26,7 +26,7 @@ func (i *InStockServiceImpl) CreateStock(ctx context.Context, stk domain.Stock) 
 		"product_id": stk.ProductID,
 		"quantity":   stk.Quantity,
 	}
-	if err := checkStockInputs(inputFields); err != nil {
+	if err := checkInputs2(inputFields); err != nil {
 		return domain.Stock{}, err
 	}
 
@@ -74,14 +74,18 @@ func (i *InStockServiceImpl) GetAllStocks(ctx context.Context) ([]domain.Stock, 
 }
 
 // SetStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, productID int64, newQuantity int64) (domain.Stock, error) {
-	if err := checkInputId(productID); err != nil {
+func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, productID, locationID int64, newQuantity int64) (domain.Stock, error) {
+	inputs := map[string]int64{
+		"product_id":  productID,
+		"location_id": locationID,
+	}
+	if err := checkInputs2(inputs); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(newQuantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.GetStockByProductID(ctx, productID)
+	stock, err := i.GetStockByLocationIDAndProductID(ctx, locationID, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -95,14 +99,18 @@ func (i *InStockServiceImpl) SetStockQuantity(ctx context.Context, productID int
 }
 
 // IncreaseStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) {
-	if err := checkInputId(productID); err != nil {
+func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, productID, locationID int64, quantity int64) (domain.Stock, error) {
+	inputs := map[string]int64{
+		"product_id":  productID,
+		"location_id": locationID,
+	}
+	if err := checkInputs2(inputs); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(quantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.GetStockByProductID(ctx, productID)
+	stock, err := i.GetStockByLocationIDAndProductID(ctx, locationID, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -118,14 +126,19 @@ func (i *InStockServiceImpl) IncreaseStockQuantity(ctx context.Context, productI
 }
 
 // IncreaseStockProductQuantity implement interface InStockService
-func (i *InStockServiceImpl) DecreaseStockQuantity(ctx context.Context, productID int64, quantity int64) (domain.Stock, error) {
-	if err := checkInputId(productID); err != nil {
+func (i *InStockServiceImpl) DecreaseStockQuantity(ctx context.Context, productID, locationID int64, quantity int64) (domain.Stock, error) {
+
+	inputs := map[string]int64{
+		"product_id":  productID,
+		"location_id": locationID,
+	}
+	if err := checkInputs2(inputs); err != nil {
 		return domain.Stock{}, err
 	}
 	if err := checkInputStockQty(quantity); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.GetStockByProductID(ctx, productID)
+	stock, err := i.GetStockByLocationIDAndProductID(ctx, locationID, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -144,11 +157,11 @@ func (i *InStockServiceImpl) DecreaseStockQuantity(ctx context.Context, productI
 	return savedStock, nil
 }
 
-func (i *InStockServiceImpl) GetStockByProductID(ctx context.Context, productID int64) (domain.Stock, error) {
+func (i *InStockServiceImpl) GetStockByLocationIDAndProductID(ctx context.Context, locationID, productID int64) (domain.Stock, error) {
 	if err := checkInputId(productID); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := i.stockOutService.GetStockByProductID(ctx, productID)
+	stock, err := i.stockOutService.GetStockByLocationIDAndProductID(ctx, locationID, productID)
 	if err != nil {
 		return domain.Stock{}, fmt.Errorf("%w:%v", errOccured, err)
 	}

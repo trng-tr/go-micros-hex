@@ -63,3 +63,18 @@ func checkBindJsonError[Request any](ctx *gin.Context) (Request, bool) {
 
 	return request, true
 }
+
+func getStockByLocationAndProductIDs(ctx *gin.Context) (int64, int64, bool) {
+	locationId, err := strconv.ParseInt(ctx.Param("locationId"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(dtos.Fail, err.Error()))
+		return 0, 0, false
+	}
+	productId, err := strconv.ParseInt(ctx.Param("productId"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, dtos.NewResponse(dtos.Fail, err.Error()))
+		return 0, 0, false
+	}
+
+	return locationId, productId, true
+}

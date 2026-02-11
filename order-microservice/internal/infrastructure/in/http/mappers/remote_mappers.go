@@ -31,3 +31,11 @@ func ToProductResponse(bsProduct domain.Product) dtos.ProductResponse {
 		IsActive: bsProduct.IsActive,
 	}
 }
+
+func ToLocationResponse(bsLocation domain.Location) dtos.LocationResponse {
+	return dtos.LocationResponse{
+		ID:          bsLocation.ID,
+		Ville:       bsLocation.Ville,
+		Description: bsLocation.Description,
+	}
+}

@@ -19,10 +19,10 @@ func NewOrderLineRepoImpl(db *sql.DB) *OrderLineRepoImpl {
 
 // FindByID implement OrderLineRepo
 func (o *OrderLineRepoImpl) FindByID(ctx context.Context, id int64) (models.OrderLineModel, error) {
-	query := `SELECT id,order_id,product_id,quantity FROM orderlines WHERE id=$1`
+	query := `SELECT id,order_id,product_id,location_id,quantity FROM orderlines WHERE id=$1`
 	var model models.OrderLineModel
 	if err := o.db.QueryRowContext(ctx, query, id).Scan(
-		&model.ID, &model.OrderID, &model.ProductID, &model.Quantity,
+		&model.ID, &model.OrderID, &model.ProductID, &model.LocationID, &model.Quantity,
 	); err != nil {
 		return models.OrderLineModel{}, err
 	}
@@ -32,7 +32,7 @@ func (o *OrderLineRepoImpl) FindByID(ctx context.Context, id int64) (models.Orde
 
 // FindAll implement OrderLineRepo
 func (o *OrderLineRepoImpl) FindAll(ctx context.Context) ([]models.OrderLineModel, error) {
-	query := "SELECT id,order_id,product_id,quantity FROM orderlines"
+	query := "SELECT id,order_id,product_id,location_id,quantity FROM orderlines"
 	rows, err := o.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (o *OrderLineRepoImpl) FindAll(ctx context.Context) ([]models.OrderLineMode
 	var data []models.OrderLineModel = make([]models.OrderLineModel, 0)
 	for rows.Next() {
 		var model models.OrderLineModel
-		if err := rows.Scan(&model.ID, &model.OrderID, &model.ProductID, &model.Quantity); err != nil {
+		if err := rows.Scan(&model.ID, &model.OrderID, &model.ProductID, &model.LocationID, &model.Quantity); err != nil {
 			return nil, err
 		}
 		data = append(data, model)
@@ -75,10 +75,10 @@ func (o *OrderLineRepoImpl) Update(ctx context.Context, id int64, quantity int64
 	query := `UPDATE orderlines
 	SET quantity=$2
 	WHERE id=$1
-	RETURNING id,order_id,product_id,quantity`
+	RETURNING id,order_id,product_id,location_id,quantity`
 	var model models.OrderLineModel
 	if err := o.db.QueryRowContext(ctx, query, id, quantity).Scan(
-		&model.ID, &model.OrderID, &model.ProductID, &model.Quantity); err != nil {
+		&model.ID, &model.OrderID, &model.ProductID, &model.LocationID, &model.Quantity); err != nil {
 		return models.OrderLineModel{}, err
 	}
 
@@ -86,7 +86,7 @@ func (o *OrderLineRepoImpl) Update(ctx context.Context, id int64, quantity int64
 }
 
 func (o *OrderLineRepoImpl) FindAllByOrderID(ctx context.Context, orderID int64) ([]models.OrderLineModel, error) {
-	query := `SELECT id,order_id,product_id,quantity
+	query := `SELECT id,order_id,product_id,location_id,quantity
 	FROM orderlines
 	WHERE order_id=$1`
 	rows, err := o.db.QueryContext(ctx, query, orderID)
@@ -98,7 +98,7 @@ func (o *OrderLineRepoImpl) FindAllByOrderID(ctx context.Context, orderID int64)
 	var orderLines []models.OrderLineModel = make([]models.OrderLineModel, 0)
 	for rows.Next() {
 		var model models.OrderLineModel
-		if err := rows.Scan(&model.ID, &model.OrderID, &model.ProductID, &model.Quantity); err != nil {
+		if err := rows.Scan(&model.ID, &model.OrderID, &model.ProductID, &model.LocationID, &model.Quantity); err != nil {
 			return nil, err
 		}
 		orderLines = append(orderLines, model)

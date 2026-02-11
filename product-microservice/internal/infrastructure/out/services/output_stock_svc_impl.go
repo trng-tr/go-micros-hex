@@ -52,7 +52,7 @@ func (o *OutStockServiceImpl) GetAllStocks(ctx context.Context) ([]domain.Stock,
 
 // UpdateStockQuantity implement OutStockService interface
 func (o *OutStockServiceImpl) UpdateStockQuantity(ctx context.Context, stock domain.Stock) (domain.Stock, error) {
-	model, err := o.repo.UpdateStockQuantity(ctx, stock.ProductID, stock.Quantity)
+	model, err := o.repo.UpdateStockQuantity(ctx, stock.ProductID, stock.LocationID, stock.Quantity)
 	if err != nil {
 		return domain.Stock{}, err
 	}
@@ -63,8 +63,8 @@ func utilMapp(model models.StockModel) domain.Stock {
 	return mappers.ToBusinessStock(model)
 }
 
-func (o *OutStockServiceImpl) GetStockByProductID(ctx context.Context, productID int64) (domain.Stock, error) {
-	model, err := o.repo.FindStockByProductID(ctx, productID)
+func (o *OutStockServiceImpl) GetStockByLocationIDAndProductID(ctx context.Context, locationID, productID int64) (domain.Stock, error) {
+	model, err := o.repo.FindStockByLocationIDAndProductID(ctx, locationID, productID)
 	if err != nil {
 		return domain.Stock{}, err
 	}

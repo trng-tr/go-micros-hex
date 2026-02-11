@@ -99,7 +99,7 @@ func (h *StockHandlerServiceImpl) HandleGetAllStocks(ctx *gin.Context) {
 
 // HandlerSetStockQuantity implement interface
 func (h *StockHandlerServiceImpl) HandleSetStockQuantity(ctx *gin.Context) {
-	id, ok := getId(ctx)
+	locationId, productId, ok := getStockByLocationAndProductIDs(ctx)
 	if !ok {
 		return
 	}
@@ -108,7 +108,7 @@ func (h *StockHandlerServiceImpl) HandleSetStockQuantity(ctx *gin.Context) {
 		return
 	}
 	var ctxRequest context.Context = ctx.Request.Context()
-	bsStock, err := h.stckInPort.SetStockQuantity(ctxRequest, id, quantityRequest.Quantity)
+	bsStock, err := h.stckInPort.SetStockQuantity(ctxRequest, productId, locationId, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
@@ -125,13 +125,16 @@ func (h *StockHandlerServiceImpl) HandleSetStockQuantity(ctx *gin.Context) {
 
 // HandlerIncreaseStockQuantity implement interface
 func (h *StockHandlerServiceImpl) HandleIncreaseStockQuantity(ctx *gin.Context) {
-	id, ok := getId(ctx)
+	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
 	if !ok {
 		return
 	}
-	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
+	locationId, productId, ok := getStockByLocationAndProductIDs(ctx)
+	if !ok {
+		return
+	}
 	var ctxRequest context.Context = ctx.Request.Context()
-	bsStock, err := h.stckInPort.IncreaseStockQuantity(ctxRequest, id, quantityRequest.Quantity)
+	bsStock, err := h.stckInPort.IncreaseStockQuantity(ctxRequest, productId, locationId, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
@@ -148,13 +151,13 @@ func (h *StockHandlerServiceImpl) HandleIncreaseStockQuantity(ctx *gin.Context) 
 
 // HandlerDecreaseStockQuantity implement interface
 func (h *StockHandlerServiceImpl) HandleDecreaseStockQuantity(ctx *gin.Context) {
-	id, ok := getId(ctx)
+	locationId, productId, ok := getStockByLocationAndProductIDs(ctx)
 	if !ok {
 		return
 	}
 	var ctxRequest context.Context = ctx.Request.Context()
 	quantityRequest, ok := checkBindJsonError[dtos.StockQuantityRequest](ctx)
-	bsStock, err := h.stckInPort.DecreaseStockQuantity(ctxRequest, id, quantityRequest.Quantity)
+	bsStock, err := h.stckInPort.DecreaseStockQuantity(ctxRequest, productId, locationId, quantityRequest.Quantity)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}
@@ -170,13 +173,13 @@ func (h *StockHandlerServiceImpl) HandleDecreaseStockQuantity(ctx *gin.Context) 
 }
 
 // HandleGetStockByProductID implement interface
-func (h *StockHandlerServiceImpl) HandleGetStockByProductID(ctx *gin.Context) {
-	id, ok := getId(ctx)
+func (h *StockHandlerServiceImpl) HandleGetStockByLocationIDAndProductID(ctx *gin.Context) {
+	loctionId, productId, ok := getStockByLocationAndProductIDs(ctx)
 	if !ok {
 		return
 	}
 	var ctxRequest context.Context = ctx.Request.Context()
-	bsStock, err := h.stckInPort.GetStockByProductID(ctxRequest, id)
+	bsStock, err := h.stckInPort.GetStockByLocationIDAndProductID(ctxRequest, loctionId, productId)
 	if ok := checkInternalServerError(err, ctx); !ok {
 		return
 	}

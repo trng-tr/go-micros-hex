@@ -39,14 +39,15 @@ func (o *OrderRepoImpl) Save(ctx context.Context, model models.OrderModel) (mode
 	}
 
 	// 2) insert ordelines 👇
-	queryLine := `INSERT INTO orderlines(order_id,product_id,quantity)
-	VALUES($1,$2,$3) 
+	queryLine := `INSERT INTO orderlines(order_id,product_id,location_id,quantity)
+	VALUES($1,$2,$3,$4) 
 	RETURNING id`
 	for i := range model.Lines {
 		model.Lines[i].OrderID = model.ID
 		if err := tx.QueryRowContext(ctx, queryLine,
 			model.Lines[i].OrderID,
 			model.Lines[i].ProductID,
+			model.Lines[i].LocationID,
 			model.Lines[i].Quantity,
 		).Scan(&model.Lines[i].ID); err != nil {
 			return models.OrderModel{}, err

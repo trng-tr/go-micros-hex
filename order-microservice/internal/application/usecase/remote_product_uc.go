@@ -19,12 +19,15 @@ func NewRemoteProductServiceImpl(outS out.RemoteProductService) *RemoteProductSe
 }
 
 // GetRemoteProductByID immplement interface
-func (o *RemoteProductServiceImpl) GetRemoteProductByID(ctx context.Context, id int64) (domain.Product, error) {
-	if err := checkId(id); err != nil {
+func (o *RemoteProductServiceImpl) GetRemoteProductByID(ctx context.Context, productID int64) (domain.Product, error) {
+	inputs := map[string]int64{
+		"product_id": productID,
+	}
+	if err := checkValue(inputs); err != nil {
 		return domain.Product{}, err
 	}
 
-	bsProduct, err := o.outSvc.GetRemoteProductByID(ctx, id)
+	bsProduct, err := o.outSvc.GetRemoteProductByID(ctx, productID)
 	if err != nil {
 		return domain.Product{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
@@ -33,11 +36,15 @@ func (o *RemoteProductServiceImpl) GetRemoteProductByID(ctx context.Context, id 
 }
 
 // GetRemoteStockByProductID immplement interface
-func (o *RemoteProductServiceImpl) GetRemoteStockByProductID(ctx context.Context, prodID int64) (domain.Stock, error) {
-	if err := checkId(prodID); err != nil {
+func (o *RemoteProductServiceImpl) GetRemoteStockByLocationIDAndProductID(ctx context.Context, locationID, prodID int64) (domain.Stock, error) {
+	values := map[string]int64{
+		"location_id": locationID,
+		"product_id":  prodID,
+	}
+	if err := checkValue(values); err != nil {
 		return domain.Stock{}, err
 	}
-	stock, err := o.outSvc.GetRemoteStockByProductID(ctx, prodID)
+	stock, err := o.outSvc.GetRemoteStockByLocationIDAndProductID(ctx, locationID, prodID)
 	if err != nil {
 		return domain.Stock{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
@@ -46,22 +53,23 @@ func (o *RemoteProductServiceImpl) GetRemoteStockByProductID(ctx context.Context
 }
 
 // SetRemoteStockQuantity immplement interface
-func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, productID int64, newQuantity int64) error {
+func (o *RemoteProductServiceImpl) SetRemoteStockQuantity(ctx context.Context, productID, locationID, newQuantity int64) error {
 	values := map[string]int64{
-		"product_id": productID,
-		"quantity":   newQuantity,
+		"product_id":  productID,
+		"location_id": locationID,
+		"quantity":    newQuantity,
 	}
 	if err := checkValue(values); err != nil {
 		return err
 	}
 
-	stock, err := o.outSvc.GetRemoteStockByProductID(ctx, productID)
+	stock, err := o.outSvc.GetRemoteStockByLocationIDAndProductID(ctx, productID, locationID)
 	if err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
 	}
 	stock.Quantity -= newQuantity
 	// call remote service to send for update remote stock
-	if err := o.outSvc.SetRemoteStockQuantity(ctx, productID, stock); err != nil {
+	if err := o.outSvc.SetRemoteStockQuantity(ctx, productID, locationID, stock); err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
 	}
 

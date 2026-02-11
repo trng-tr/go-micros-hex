@@ -26,9 +26,9 @@ func NewOrderLineUseCase(outOrderLineSvc out.OutOrderLineService, outOrderSvc ou
 
 // GetOrderByID implement OrderLineService interface
 func (o *OrderLineUseCase) GetOrderLineByID(ctx context.Context, id int64) (domain.OrderLine, error) {
-	if err := checkId(id); err != nil {
+	/*if err := checkId(id); err != nil {
 		return domain.OrderLine{}, err
-	}
+	}*/
 	savedOrder, err := o.outOrderLineSvc.GetOrderLineByID(ctx, id)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
@@ -78,12 +78,12 @@ func (o *OrderLineUseCase) IncreaseOrderLineQuantity(ctx context.Context, id int
 	if err := checkValue(values); err != nil {
 		return domain.OrderLine{}, err
 	}
-	savedOrderLine, err := o.GetOrderLineByID(ctx, id)
+	savedLine, err := o.GetOrderLineByID(ctx, id)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
 	//check remote product exist again and is active
-	product, err := o.remoteProduct.GetRemoteProductByID(ctx, savedOrderLine.ProductID)
+	product, err := o.remoteProduct.GetRemoteProductByID(ctx, savedLine.ProductID)
 	if err != nil {
 		return domain.OrderLine{}, err
 	}
@@ -91,22 +91,22 @@ func (o *OrderLineUseCase) IncreaseOrderLineQuantity(ctx context.Context, id int
 		return domain.OrderLine{}, errors.New("error: remote product status not allowed")
 	}
 	//check if there is enough quantity in stock
-	stock, err := o.remoteProduct.GetRemoteStockByProductID(ctx, savedOrderLine.ProductID)
+	stock, err := o.remoteProduct.GetRemoteStockByLocationIDAndProductID(ctx, savedLine.LocationID, savedLine.ProductID)
 	if err != nil {
 		return domain.OrderLine{}, err
 	}
 	if (stock.Quantity - quantity) < 0 {
 		return domain.OrderLine{}, fmt.Errorf("%w for product %d", errNotEnough, stock.ProductID)
 	}
-	savedOrderLine.Quantity += quantity
-	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedOrderLine)
+	savedLine.Quantity += quantity
+	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedLine)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
 	//prendre du stock la quantité augmentée à la ligne de commande
 	stock.Quantity -= quantity
 	// call remote to update stock
-	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
+	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.LocationID, stock.ProductID, stock); err != nil {
 		return domain.OrderLine{}, err
 	}
 	return UpdateOrderLine, nil
@@ -121,33 +121,33 @@ func (o *OrderLineUseCase) DecreaseOrderLineQuantity(ctx context.Context, id int
 	if err := checkValue(values); err != nil {
 		return domain.OrderLine{}, err
 	}
-	savedOrderLine, err := o.GetOrderLineByID(ctx, id)
+	savedLine, err := o.GetOrderLineByID(ctx, id)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
 
 	//check remote product exist again
 	// for decrease quantity, no need to check if prodct is active or not
-	_, err = o.remoteProduct.GetRemoteProductByID(ctx, savedOrderLine.ProductID)
+	_, err = o.remoteProduct.GetRemoteProductByID(ctx, savedLine.ProductID)
 	if err != nil {
 		return domain.OrderLine{}, err
 	}
 	//check stock is recheable
-	stock, err := o.remoteProduct.GetRemoteStockByProductID(ctx, savedOrderLine.ProductID)
+	stock, err := o.remoteProduct.GetRemoteStockByLocationIDAndProductID(ctx, savedLine.LocationID, savedLine.ProductID)
 	if err != nil {
 		return domain.OrderLine{}, err
 	}
-	if savedOrderLine.Quantity <= quantity {
+	if savedLine.Quantity <= quantity {
 		return domain.OrderLine{}, errors.New("error: quantity to decrease exceeds current order line quantity")
 	}
-	savedOrderLine.Quantity -= quantity
-	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedOrderLine)
+	savedLine.Quantity -= quantity
+	UpdateOrderLine, err := o.outOrderLineSvc.UpdateOrderLine(ctx, savedLine)
 	if err != nil {
 		return domain.OrderLine{}, fmt.Errorf("%w:%v", errOccurred, err)
 	}
 	//remettre en stock la quantité diminiuée de la ligne de commande
 	stock.Quantity += quantity
-	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
+	if err := o.remoteProduct.SetRemoteStockQuantity(ctx, stock.LocationID, stock.ProductID, stock); err != nil {
 		return domain.OrderLine{}, err
 	}
 
@@ -156,9 +156,9 @@ func (o *OrderLineUseCase) DecreaseOrderLineQuantity(ctx context.Context, id int
 
 // DeleteOrderLine implement OrderLineService interface
 func (o *OrderLineUseCase) DeleteOrderLine(ctx context.Context, id int64) error {
-	if err := checkId(id); err != nil {
+	/*if err := checkId(id); err != nil {
 		return err
-	}
+	}*/
 	_, err := o.GetOrderLineByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
@@ -173,9 +173,9 @@ func (o *OrderLineUseCase) DeleteOrderLine(ctx context.Context, id int64) error 
 
 // GetOrderLinesByOrderID implement OrderLineService interface
 func (o *OrderLineUseCase) GetOrderLinesByOrderID(ctx context.Context, orderID int64) ([]domain.OrderLine, error) {
-	if err := checkId(orderID); err != nil {
+	/*if err := checkId(orderID); err != nil {
 		return nil, err
-	}
+	}*/
 	orderLines, err := o.outOrderLineSvc.GetOrderLinesByOrderID(ctx, orderID)
 	if err != nil {
 		return nil, fmt.Errorf("%w:%v", errOccurred, err)

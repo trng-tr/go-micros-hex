@@ -26,7 +26,7 @@ func (p *ProductRepositoryImpl) Save(ctx context.Context, o models.ProductModel)
 		ctx,
 		query,
 		o.Sku,
-		o.Categoy,
+		o.Category,
 		o.ProductName,
 		o.Description,
 		o.UnitPrice,
@@ -50,7 +50,7 @@ func (p *ProductRepositoryImpl) FindByID(ctx context.Context, id int64) (models.
 	if err := p.db.QueryRowContext(ctx, query, id).Scan(
 		&product.ID,
 		&product.Sku,
-		&product.Categoy,
+		&product.Category,
 		&product.ProductName,
 		&product.Description,
 		&product.UnitPrice,
@@ -80,7 +80,7 @@ func (p *ProductRepositoryImpl) FindAll(ctx context.Context) ([]models.ProductMo
 		if err := rows.Scan(
 			&product.ID,
 			&product.Sku,
-			&product.Categoy,
+			&product.Category,
 			&product.ProductName,
 			&product.Description,
 			&product.UnitPrice,
@@ -143,7 +143,7 @@ func (p *ProductRepositoryImpl) PatchProduct(ctx context.Context, id int64, o mo
 	).Scan(
 		&product.ID,
 		&product.Sku,
-		&product.Categoy,
+		&product.Category,
 		&product.ProductName,
 		&product.Description,
 		&product.UnitPrice,
@@ -168,7 +168,7 @@ func (p *ProductRepositoryImpl) FindProductBySku(ctx context.Context, sku string
 	if err := p.db.QueryRowContext(ctx, query, sku).Scan(
 		&prod.ID,
 		&prod.Sku,
-		&prod.Categoy,
+		&prod.Category,
 		&prod.ProductName,
 		&prod.Description,
 		&prod.UnitPrice,

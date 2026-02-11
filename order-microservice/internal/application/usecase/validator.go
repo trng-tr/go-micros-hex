@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -15,9 +14,9 @@ func checkValue(values map[string]int64) error {
 	return nil
 }
 
-func checkId(id int64) error {
+/*func checkId(id int64) error {
 	if id <= 0 {
-		return errors.New("invalid id value")
+		return errors.New("invalid id value !!!!!!!!!!!!!!!!")
 	}
 	return nil
-}
+}*/

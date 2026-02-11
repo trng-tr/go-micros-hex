@@ -9,10 +9,10 @@ import (
 // OutProductService contrat pour la gestion du stock
 type OutProductService interface {
 	SaveProduct(ctx context.Context, prd domain.Product) (domain.Product, error)
-	GetProductByID(ctx context.Context, id int64) (domain.Product, error)
+	GetProductByID(ctx context.Context, productID int64) (domain.Product, error)
 	GetAllProducts(ctx context.Context) ([]domain.Product, error)
-	PatchProduct(ctx context.Context, id int64, product domain.Product) (domain.Product, error)
-	DeleteProduct(ctx context.Context, id int64) error
+	PatchProduct(ctx context.Context, productID int64, product domain.Product) (domain.Product, error)
+	DeleteProduct(ctx context.Context, productID int64) error
 	GetProductBySku(ctx context.Context, sku string) (domain.Product, error)
 }
 
@@ -22,7 +22,7 @@ type OutStockService interface {
 	GetStockByID(ctx context.Context, id int64) (domain.Stock, error)
 	GetAllStocks(ctx context.Context) ([]domain.Stock, error)
 	UpdateStockQuantity(ctx context.Context, stock domain.Stock) (domain.Stock, error)
-	GetStockByProductID(ctx context.Context, productID int64) (domain.Stock, error)
+	GetStockByLocationIDAndProductID(ctx context.Context, locationID, productID int64) (domain.Stock, error)
 }
 
 // OutGenerateSkuService service pour générer un sku du produit

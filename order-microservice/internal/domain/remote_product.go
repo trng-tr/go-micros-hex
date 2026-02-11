@@ -29,9 +29,15 @@ const (
 	Euro   Currency = "EUR"
 )
 
+type Location struct {
+	ID          int64
+	Ville       string
+	Description *string //not mendatory
+}
 type Stock struct {
-	ID        int64
-	Name      string
-	ProductID int64
-	Quantity  int64
+	ID         int64
+	Name       string
+	ProductID  int64
+	LocationID int64
+	Quantity   int64
 }

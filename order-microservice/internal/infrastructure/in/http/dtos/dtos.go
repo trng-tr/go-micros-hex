@@ -3,8 +3,9 @@ package dtos
 import "time"
 
 type OrderLineRequest struct {
-	ProductID int64 `json:"product_id" binding:"required"`
-	Quantity  int64 `json:"quantity" binding:"required"`
+	ProductID  int64 `json:"product_id" binding:"required"`
+	LocationID int64 `json:"location_id" binding:"required"`
+	Quantity   int64 `json:"quantity" binding:"required"`
 }
 type OrderRequest struct {
 	CustomerID int64              `json:"customer_id" binding:"required"`
@@ -20,9 +21,10 @@ type OrderResponse struct {
 }
 
 type OrderLineResponse struct {
-	ID              int64
-	ProductResponse ProductResponse `json:"product"`
-	Quantity        int64
+	ID               int64            `json:"id"`
+	ProductResponse  ProductResponse  `json:"product"`
+	LocationResponse LocationResponse `json:"location"`
+	Quantity         int64            `json:"quantity"`
 }
 
 type Response struct {

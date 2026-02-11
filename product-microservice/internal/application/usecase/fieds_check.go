@@ -7,7 +7,7 @@ import (
 	"github.com/trng-tr/product-microservice/internal/domain"
 )
 
-func checkInputs(fileds map[string]string) error {
+func checkInputs1(fileds map[string]string) error {
 	for key, value := range fileds {
 		value = strings.TrimSpace(value)
 		if value == "" {
@@ -16,6 +16,15 @@ func checkInputs(fileds map[string]string) error {
 			return fmt.Errorf("%w, %s", errTooShort, key)
 		} else if len(value) > 255 {
 			return fmt.Errorf("%w %s", errTooLong, key)
+		}
+	}
+	return nil
+}
+
+func checkInputs2(fields map[string]int64) error {
+	for key, v := range fields {
+		if v <= 0 {
+			return fmt.Errorf("%w:%v", errInvalidStockField, key)
 		}
 	}
 	return nil
@@ -52,14 +61,6 @@ func checkProdCategory(cat domain.Category) error {
 func checkStockName(name string) error {
 	if len(name) < 2 {
 		return fmt.Errorf("%w", errTooShort)
-	}
-	return nil
-}
-func checkStockInputs(fields map[string]int64) error {
-	for key, v := range fields {
-		if v <= 0 {
-			return fmt.Errorf("%w:%v", errInvalidStockField, key)
-		}
 	}
 	return nil
 }

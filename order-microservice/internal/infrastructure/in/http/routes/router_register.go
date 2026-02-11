@@ -15,7 +15,7 @@ func (rr *RouteRegistration) RegisterRoutes() *gin.Engine {
 
 	api := engine.Group("/api/v1")
 	api.POST("/orders", rr.handler.HandleCreateOrder)
-	api.GET("/orders", rr.handler.HandleGetAllOrder)
+	api.GET("/orders", rr.handler.HandleGetAllOrders)
 	api.GET("/orders/:id", rr.handler.HandleGetOrderByID)
 	api.DELETE("/orders/:id", rr.handler.HandleDeleteOrder)
 	api.PUT("/orderlines/increase/:id", rr.handler.HandleIncreaseOrderLineQuantity)

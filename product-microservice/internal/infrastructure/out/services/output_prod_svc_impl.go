@@ -27,7 +27,7 @@ func (o *OutProductServiceImpl) SaveProduct(ctx context.Context, prod domain.Pro
 	return mappers.ToBusinessProduct(savedModel), nil
 }
 
-// SaveProduct implement output port OutProductService
+// GetProductByID implement output port OutProductService
 func (o *OutProductServiceImpl) GetProductByID(ctx context.Context, id int64) (domain.Product, error) {
 	model, err := o.repo.FindByID(ctx, id)
 	if err != nil {

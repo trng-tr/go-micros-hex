@@ -19,7 +19,7 @@ func ToProductModel(prod domain.Product) models.ProductModel {
 	return models.ProductModel{
 		ID:          prod.ID,
 		Sku:         prod.Sku,
-		Categoy:     string(prod.Category),
+		Category:    string(prod.Category),
 		ProductName: prod.ProductName,
 		Description: prod.Description,
 		UnitPrice:   prod.Price.UnitPrice,
@@ -40,7 +40,7 @@ func ToBusinessProduct(model models.ProductModel) domain.Product {
 	return domain.Product{
 		ID:          model.ID,
 		Sku:         model.Sku,
-		Category:    domain.Category(model.Categoy),
+		Category:    domain.Category(model.Category),
 		ProductName: model.ProductName,
 		Description: model.Description,
 		Price: domain.Price{

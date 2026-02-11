@@ -37,18 +37,20 @@ func ToOrder(model models.OrderModel) domain.Order {
 // orderline mappers
 func ToOrderLineModel(orderL domain.OrderLine) models.OrderLineModel {
 	return models.OrderLineModel{
-		ID:        orderL.ID,
-		OrderID:   orderL.OrderID,
-		ProductID: orderL.ProductID,
-		Quantity:  orderL.Quantity,
+		ID:         orderL.ID,
+		OrderID:    orderL.OrderID,
+		ProductID:  orderL.ProductID,
+		LocationID: orderL.LocationID,
+		Quantity:   orderL.Quantity,
 	}
 }
 
 func ToOrderLine(model models.OrderLineModel) domain.OrderLine {
 	return domain.OrderLine{
-		ID:        model.ID,
-		OrderID:   model.OrderID,
-		ProductID: model.ProductID,
-		Quantity:  model.Quantity,
+		ID:         model.ID,
+		OrderID:    model.OrderID,
+		ProductID:  model.ProductID,
+		LocationID: model.LocationID,
+		Quantity:   model.Quantity,
 	}
 }

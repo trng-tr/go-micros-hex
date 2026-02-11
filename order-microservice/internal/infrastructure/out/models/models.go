@@ -11,8 +11,9 @@ type OrderModel struct {
 }
 
 type OrderLineModel struct {
-	ID        int64
-	OrderID   int64
-	ProductID int64 //remote api: 8082
-	Quantity  int64
+	ID         int64
+	OrderID    int64
+	ProductID  int64 //remote api: 8082
+	LocationID int64 //remote api: 8082
+	Quantity   int64
 }

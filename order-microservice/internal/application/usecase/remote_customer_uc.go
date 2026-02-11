@@ -16,9 +16,9 @@ func NewRemoteCustomerServiceImpl(outS out.RemoteCustomerService) *RemoteCustome
 }
 
 func (o *RemoteCustomerServiceImpl) GetRemoteCustomerByID(ctx context.Context, id int64) (domain.Customer, error) {
-	if err := checkId(id); err != nil {
+	/*if err := checkId(id); err != nil {
 		return domain.Customer{}, err
-	}
+	}*/
 
 	bsCustomer, err := o.outSvc.GetRemoteCustomerByID(ctx, id)
 	if err != nil {

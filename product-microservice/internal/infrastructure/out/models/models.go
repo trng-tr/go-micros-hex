@@ -8,7 +8,7 @@ import (
 type ProductModel struct {
 	ID          int64
 	Sku         string
-	Categoy     string
+	Category    string
 	ProductName string
 	Description string
 	UnitPrice   int64

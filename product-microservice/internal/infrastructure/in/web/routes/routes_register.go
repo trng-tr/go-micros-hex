@@ -1,8 +1,10 @@
 package routes
 
 /*en Go, les interfaces sont du côte de celui qui les utilise(DI)
-et non pas du coté de cui qui les implémente, ici c'est la route
-qui les injecte
+et non pas du coté de celui qui les implémente, ici c'est la route
+qui les injecte(les utilise) mais c'est handlers/LocationHandlerServiceImpl,
+handlers/ProductHandlerServiceImpl et handlers/StockHandlerServiceImpl, qui les
+implemente
 */
 import "github.com/gin-gonic/gin"
 
@@ -31,7 +33,7 @@ func (r *Routes) RegisterApiRoutes() *gin.Engine {
 	api.PATCH("/products/:id", r.phs.HandlePatchProduct)
 	api.DELETE("/products/:id", r.phs.HandleDeleteProduct)
 
-	//for location service
+	//for stock service
 	api.POST("/locations", r.lhs.HandleCreateLocation)
 	api.GET("/locations", r.lhs.HandleGetAllLocation)
 	api.GET("/locations/:id", r.lhs.HandleGetLocationByID)
@@ -40,9 +42,9 @@ func (r *Routes) RegisterApiRoutes() *gin.Engine {
 	api.POST("/stocks", r.shs.HandleCreateStock)
 	api.GET("/stocks", r.shs.HandleGetAllStocks)
 	api.GET("/stocks/:id", r.shs.HandleGetStockByID)
-	api.PUT("/stocks/set-qte/:id", r.shs.HandleSetStockQuantity)
-	api.PUT("/stocks/increase-qte/:id", r.shs.HandleIncreaseStockQuantity)
-	api.PUT("/stocks/decrease-qte/:id", r.shs.HandleDecreaseStockQuantity)
-	api.GET("/products/:id/stock", r.shs.HandleGetStockByProductID)
+	api.PUT("/stocks/locations/:locationId/products/:productId/set-qte", r.shs.HandleSetStockQuantity)
+	api.PUT("/stocks/locations/:locationId/products/:productId/increase", r.shs.HandleIncreaseStockQuantity)
+	api.PUT("/stocks/locations/:locationId/products/:productId/decrease", r.shs.HandleDecreaseStockQuantity)
+	api.GET("/stocks/locations/:locationId/products/:productId", r.shs.HandleGetStockByLocationIDAndProductID)
 	return engine
 }

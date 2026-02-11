@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/trng-tr/order-microservice/internal/application/out"
@@ -25,16 +26,14 @@ func NewOrderUseCase(outOrderSvc out.OutOrderService, remote1 out.RemoteCustomer
 
 // CreateOrder implement OrderService
 func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID int64, lines []domain.OrderLine) (domain.Order, error) {
-	if err := checkId(customerID); err != nil {
-		return domain.Order{}, err
-	}
 	if len(lines) == 0 {
 		return domain.Order{}, errors.New("error: order must contain lines")
 	}
 	for i := range lines {
 		values := map[string]int64{
-			"product_id": lines[i].ProductID,
-			"quantity":   lines[i].Quantity,
+			"product_id":  lines[i].ProductID,
+			"location_id": lines[i].LocationID,
+			"quantity":    lines[i].Quantity,
 		}
 		if err := checkValue(values); err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
@@ -61,11 +60,16 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 		if ok := remoteProduct.IsActive; !ok {
 			return domain.Order{}, errors.New("error: remote product status not allowed")
 		}
+
+		log.Println("!!!!!!!!!!!!!! remote product", remoteProduct)
 		// get stock for the product to check quantity is enough 👇
-		stock, err := o.remoteProductSvc.GetRemoteStockByProductID(ctx, line.ProductID)
+		stock, err := o.remoteProductSvc.GetRemoteStockByLocationIDAndProductID(ctx, line.LocationID, line.ProductID)
 		if err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
 		}
+
+		log.Println("!!!!!!!!!!!!!! remote stock", stock)
+
 		if (stock.Quantity - line.Quantity) < 0 {
 			return domain.Order{}, fmt.Errorf("%w for product %d", errNotEnough, stock.ProductID)
 		}
@@ -90,7 +94,7 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 	// 6) update remote stock AFTER DB commit (best-effort)
 	// ⚠️ Si ça échoue, tu dois compenser (annuler commande) ou marquer FAILED.👇
 	for _, stock := range stocksToUpdate {
-		if err := o.remoteProductSvc.SetRemoteStockQuantity(ctx, stock.ProductID, stock); err != nil {
+		if err := o.remoteProductSvc.SetRemoteStockQuantity(ctx, stock.LocationID, stock.ProductID, stock); err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
 		}
 	}
@@ -101,9 +105,9 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 
 // GetOrderByID implement OrderService
 func (o *OrderUseCase) GetOrderByID(ctx context.Context, id int64) (domain.Order, error) {
-	if err := checkId(id); err != nil {
+	/*if err := checkId(id); err != nil {
 		return domain.Order{}, err
-	}
+	}*/
 
 	savedOrder, err := o.outOrderSvc.GetOrderByID(ctx, id)
 	if err != nil {
@@ -114,8 +118,8 @@ func (o *OrderUseCase) GetOrderByID(ctx context.Context, id int64) (domain.Order
 }
 
 // GetAllOrder implement OrderService
-func (o *OrderUseCase) GetAllOrder(ctx context.Context) ([]domain.Order, error) {
-	orders, err := o.outOrderSvc.GetAllOrder(ctx)
+func (o *OrderUseCase) GetAllOrders(ctx context.Context) ([]domain.Order, error) {
+	orders, err := o.outOrderSvc.GetAllOrders(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%w:%v", errOccurred, err)
 	}
@@ -128,9 +132,9 @@ func (o *OrderUseCase) GetAllOrder(ctx context.Context) ([]domain.Order, error) 
 
 // DeleteOrder implement OrderService
 func (o *OrderUseCase) DeleteOrder(ctx context.Context, id int64) error {
-	if err := checkId(id); err != nil {
+	/*if err := checkId(id); err != nil {
 		return err
-	}
+	}*/
 	order, err := o.GetOrderByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("%w:%v", errOccurred, err)
