@@ -28,8 +28,20 @@ func main() {
 	var remoteProductSvc out.RemoteProductService = services.NewRemoteProductServiceImpl(appConf.ProductBaseUrl)
 	var remoteLocationSvc out.RemoteLocationService = services.NewRemoteLocationServiceImpl(appConf.ProductBaseUrl)
 	var outRemoteCustomerSvc out.RemoteCustomerService = services.NewRemoteCustomerServiceImpl(appConf.CustomerBaseUrl)
-	var inOrderSvc in.InOrderService = usecase.NewOrderUseCase(outOrderSvc, outRemoteCustomerSvc, remoteProductSvc)
-	var inOrderLineSvc in.InOrderLineService = usecase.NewOrderLineUseCase(outOrderLineSvc, outOrderSvc, remoteProductSvc)
+	var remoteStockSvc out.RemoteStockService = services.NewRemoteStockServiceImpl(appConf.ProductBaseUrl)
+
+	var inOrderSvc in.InOrderService = usecase.NewOrderUseCase(
+		outOrderSvc,
+		outRemoteCustomerSvc,
+		remoteProductSvc,
+		remoteStockSvc,
+	)
+	var inOrderLineSvc in.InOrderLineService = usecase.NewOrderLineUseCase(
+		outOrderLineSvc,
+		outOrderSvc,
+		remoteProductSvc,
+		remoteStockSvc,
+	)
 	var inRemoteCustomer in.RemoteCustomerService = usecase.NewRemoteCustomerServiceImpl(outRemoteCustomerSvc)
 	var inRemoteProduct in.RemoteProductService = usecase.NewRemoteProductServiceImpl(remoteProductSvc)
 	var handler routes.OrderHandler = handlers.NewOrderHandlerImpl(

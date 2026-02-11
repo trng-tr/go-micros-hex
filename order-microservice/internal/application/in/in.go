@@ -30,14 +30,13 @@ type RemoteCustomerService interface {
 // RemoteProductService to get remote products
 type RemoteProductService interface {
 	GetRemoteProductByID(ctx context.Context, productID int64) (domain.Product, error)
-	GetRemoteStockByLocationIDAndProductID(ctx context.Context, locationID, prodID int64) (domain.Stock, error)
-	SetRemoteStockQuantity(ctx context.Context, productID, locationID, newQuantity int64) error
-}
-
-type RemoteStockService interface {
-	GetRemoteStockByID(ctx context.Context, stockID int64) (domain.Location, error)
 }
 
 type RemoteLocationService interface {
 	GetRemoteLocationByID(ctx context.Context, locationID int64) (domain.Location, error)
+}
+
+type RemoteStockService interface {
+	GetRemoteStockByLocationIDAndProductID(ctx context.Context, locationID, prodID int64) (domain.Stock, error)
+	SetRemoteStockQuantity(ctx context.Context, productID, locationID, newQuantity int64) error
 }

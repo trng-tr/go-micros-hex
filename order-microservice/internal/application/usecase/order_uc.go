@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/trng-tr/order-microservice/internal/application/out"
@@ -16,12 +15,18 @@ type OrderUseCase struct {
 	outOrderSvc       out.OutOrderService
 	remoteCustomerSvc out.RemoteCustomerService
 	remoteProductSvc  out.RemoteProductService
+	remoteStockSvc    out.RemoteStockService
 }
 
 // NewOrderNewOrderUseCaseServiceImpl DI by contructor
-func NewOrderUseCase(outOrderSvc out.OutOrderService, remote1 out.RemoteCustomerService,
-	remote2 out.RemoteProductService) *OrderUseCase {
-	return &OrderUseCase{outOrderSvc: outOrderSvc, remoteCustomerSvc: remote1, remoteProductSvc: remote2}
+func NewOrderUseCase(outOrderSvc out.OutOrderService, remoteCustomerSvc out.RemoteCustomerService,
+	remoteProductSvc out.RemoteProductService, remoteStockSvc out.RemoteStockService) *OrderUseCase {
+	return &OrderUseCase{
+		outOrderSvc:       outOrderSvc,
+		remoteCustomerSvc: remoteCustomerSvc,
+		remoteProductSvc:  remoteProductSvc,
+		remoteStockSvc:    remoteStockSvc,
+	}
 }
 
 // CreateOrder implement OrderService
@@ -48,9 +53,9 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 		return domain.Order{}, errors.New("error: remote customer status not allowed")
 	}
 
-	// 3) remote product + stock checks (best-effort)
-	// ⚠️ Ici on vérifie juste avant commit.
-	// Pour du 100% robuste, il faut réserver le stock (saga).👇
+	// 3) remote product + stock checks
+	// Ici on vérifie juste avant commit.
+	// Pour du 100% robuste, il faut réserver le stock.👇
 	var stocksToUpdate []domain.Stock = make([]domain.Stock, 0, len(lines))
 	for _, line := range lines {
 		remoteProduct, err := o.remoteProductSvc.GetRemoteProductByID(ctx, line.ProductID)
@@ -60,18 +65,14 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 		if ok := remoteProduct.IsActive; !ok {
 			return domain.Order{}, errors.New("error: remote product status not allowed")
 		}
-
-		log.Println("!!!!!!!!!!!!!! remote product", remoteProduct)
 		// get stock for the product to check quantity is enough 👇
-		stock, err := o.remoteProductSvc.GetRemoteStockByLocationIDAndProductID(ctx, line.LocationID, line.ProductID)
+		stock, err := o.remoteStockSvc.GetRemoteStockByLocationIDAndProductID(ctx, line.LocationID, line.ProductID)
 		if err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
 		}
 
-		log.Println("!!!!!!!!!!!!!! remote stock", stock)
-
 		if (stock.Quantity - line.Quantity) < 0 {
-			return domain.Order{}, fmt.Errorf("%w for product %d", errNotEnough, stock.ProductID)
+			return domain.Order{}, fmt.Errorf("%w for product %d", errNotEnough, line.ProductID)
 		}
 		stock.Quantity -= line.Quantity
 		stocksToUpdate = append(stocksToUpdate, stock)
@@ -92,9 +93,9 @@ func (o *OrderUseCase) CreateOrderWithOrderLines(ctx context.Context, customerID
 	}
 
 	// 6) update remote stock AFTER DB commit (best-effort)
-	// ⚠️ Si ça échoue, tu dois compenser (annuler commande) ou marquer FAILED.👇
+	// Si ça échoue, tu dois compenser (annuler commande) ou marquer FAILED.👇
 	for _, stock := range stocksToUpdate {
-		if err := o.remoteProductSvc.SetRemoteStockQuantity(ctx, stock.LocationID, stock.ProductID, stock); err != nil {
+		if err := o.remoteStockSvc.SetRemoteStockQuantity(ctx, stock.LocationID, stock.ProductID, stock); err != nil {
 			return domain.Order{}, fmt.Errorf("%w:%v", errOccurred, err)
 		}
 	}
