@@ -191,7 +191,7 @@ Microservice cible (Customer / Product / Order
 
 Exemple :  
 
-POST http://localhost:8080/api/v1/orders   
+[POST] http://localhost:8080/api/v1/orders   
 → Kong  
 → order-microservice  
 → customer-microservice  
@@ -220,12 +220,12 @@ Gérer les **clients** et leurs informations associées.
 - Persistance en base
 - Exposition d’une API REST
 
-### Exemples d’API
-- GET http://localhost:8080/api/v1/customers
-- GET http://localhost:8080/api/v1/customers/{id}
-- POST http://localhost:8080/api/v1/customers
-- PUT http://localhost:8080//api/v1/customers/{id}
-- DELETE http://localhost:8080/api/v1/customers/{id}
+### Exemples d'API
+- [GET] http://localhost:8080/api/v1/customers
+- [GET] http://localhost:8080/api/v1/customers/{id}
+- [POST] http://localhost:8080/api/v1/customers
+- [PUT] http://localhost:8080//api/v1/customers/{id}
+- [DELETE] http://localhost:8080/api/v1/customers/{id}
 
 ---
 
@@ -250,14 +250,14 @@ Gérer le **catalogue produit**, les **stocks** et les **localisations**.
 - Consultation et mise à jour
 
 ### APIs principales
-- POST http://localhost:8080/api/v1/locations
-- POST http://localhost:8080/api/v1/products
-- POST http://localhost:8080/api/v1/stocks
-- GET http://localhost:8080/api/v1/products/{id}
-- GET http://localhost:8080/api/v1/locations/{id}
-- GET http://localhost:8080/api/v1/stocks
-- GET http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}
-- PUT http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}/set-qte  
+- [POST] http://localhost:8080/api/v1/locations
+- [POST] http://localhost:8080/api/v1/products
+- [POST] http://localhost:8080/api/v1/stocks
+- [GET] http://localhost:8080/api/v1/products/{id}
+- [GET] http://localhost:8080/api/v1/locations/{id}
+- [GET] http://localhost:8080/api/v1/stocks
+- [GET] http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}
+- [PUT] http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}/set-qte  
 Body json attendu pour la mise à jour (PUT) :
 ```
 {
@@ -334,5 +334,6 @@ Les erreurs sont renvoyées sous forme :
 }
 
 ```
+
 
 
