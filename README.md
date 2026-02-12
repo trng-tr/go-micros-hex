@@ -183,20 +183,20 @@ La configuration est déclarative via le fichier `./kong.yml`
 
 ## 4.2 Flow d'une request client via Kong
 
-Client
-    ↓
-Kong API Gateway
-    ↓
-Microservice cible (Customer / Product / Order)
+Client  
+    ↓  
+Kong API Gateway  
+    ↓  
+Microservice cible (Customer / Product / Order  
 
 Exemple :  
 
-POST http://localhost:8080/api/v1/orders 
-→ Kong
-→ order-microservice
-→ customer-microservice
-→ product-microservice (stock, location, produit)
-→ base de donnée
+POST http://localhost:8080/api/v1/orders   
+→ Kong  
+→ order-microservice  
+→ customer-microservice  
+→ product-microservice (stock, location, produit)  
+→ base de donnée  
 
 ---
 
@@ -334,4 +334,5 @@ Les erreurs sont renvoyées sous forme :
 }
 
 ```
+
 
