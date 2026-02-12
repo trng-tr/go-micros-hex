@@ -136,7 +136,7 @@ order-microservice/
 ├── go.sum
 └── README.md
 ```
-Les autres microservices: product-microservice, order-microservice possèdent le même organigramme.
+Les autres microservices: customer-microservice et product-microservice ont le même organigramme.
 
 ## Architecture globale Microservices
 
@@ -332,6 +332,7 @@ Les erreurs sont renvoyées sous forme :
 }
 
 ```
+
 
 
 
