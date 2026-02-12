@@ -40,79 +40,98 @@ Chaque microservice :
 - est autonome
 - possède sa propre base de données
 - expose une API REST
-- implémente une architecture hexagonale
+- implémente une **architecture hexagonale**
 
 ---
 
-## 3.2 Architecture hexagonale (Ports & Adapters)
+## 3.2 Architecture hexagonale: Ports & Adapters
 
-A l'instar de customer-microservice, chaque microservice est structuré de la manière suivante :
+A l'exemple de la structure suivante de order-microservice, chaque microservice est structuré de la même manière :
 ```
-customer-microservice/
+order-microservice/
 ├── cmd/
 │   └── api/
-│       ├── main.go                                         # composition root (wiring)
+│       ├── main.go                                     # composition root (wiring)
 │
 ├── internal/
-│   ├── domain/                                             # 1️⃣ OBJETS MÉTIER (purs)
-│   │   ├── business_customer.go                            # BusinessCustomer objet métier Customer
-│   │   ├── business_address.go                             # BusinessAddress objet métier Address
-│   │   │
-│   ├── application/                                        # 2️⃣ USE CASES + PORTS
+│   ├── domain/                                         # 1️⃣ OBJETS MÉTIER (purs)
+│   │   ├── order.go                                    # Order objet métier
+│   │   ├── customer.go                                 # Customer objet métier pour representer le remote customer dans customer-microservice
+│   │   ├── product.go                                  # Product objet métier pour representer le remote product dans product-microservice
+│   ├── application/                                    # 2️⃣ USE CASES + PORTS
 │   │   ├── ports/
 │   │   │   ├── in/
-│   │   │   │   ├── customer_in_port.go                     # InCustomerService port d'entrée exposé à l'extreieur
-|   |   |   |   └── address_in_port.go                      # InAddressService port d'entrée exposé à l'extreieur
+│   │   │   │   ├── order_in_port.go                     # InOrderService port d'entrée exposé à l'extérieur
+│   │   │   │   ├── customer_in_port.go                  # InCustomerService port d'entrée exposé à l'extérieur
+|   |   |   |   ├── product_in_port.go                   # InProcutService port d'entrée exposé à l'exterieur
+|   |   |   |   ├── stock_in_port.go                     # InStockService port d'entrée exposé à l'exterieur
+|   |   |   |   ├── location_in_port.go                  # InLocationService port d'entrée exposé à l'exterieur
 │   │   │   ├── out/
-|   |   |   │   ├── customer_out_port.go                    # OutCustomerService utilisé pour envoyer à l'exterieur
-|   |   |   |   └── address_out_port.go                     # OutAddressService utilisé pour envoyer à l'exterieur
-│   │   │   └── usecase/                                    # ✅ usecase implemente les input ports
-│   │   │       ├── customer_usecase.go
-│   │   │       └── address_usecase.go
-│   │   │       ├── fieds_checker.go                        # validation des champs du métier
-│   │   |       └── errors.go                               # erreurs métier
+│   │   │   │   ├── order_out_port.go                    # OutOrderService port utilisé par le domaine de l'application pour communiquer à l'extérieur
+│   │   │   │   ├── customer_out_port.go                 # OutCustomerService port utilisé par le domaine de l'application pour communiquer à l'extérieur
+|   |   |   |   ├── product_out_port.go                  # OutProcutService port utilisé  par le domaine de l'application pour communiquer à l'extérieur
+|   |   |   |   ├── stock_in_port.go                     # OutStockService port utilisé par le domaine de l'application pour communiquer à l'extérieur
+|   |   |   |   └── location_in_port.go                  # OutLocationService port utilisé par le domaine de l'application pour communiquer à l'extérieur
+|   |   |   |
+│   │   │   └── usecase/                                 # ✅ usecase implemente les input ports
+│   │   │       ├── order_usecase.go                        
+│   │   │       ├── customer_usecase.go                  # récupérer le customer depuis les remote customer-microservice
+│   │   │       ├── product_usecase.go                   # récupérer le product depuis les remote product-microservice
+│   │   │       ├── stock_usecase.go                     # récupérer le stock du produit depuis les remote product-microservice
+│   │   │       ├── location_usecase.go                  # récupérer la localisation (ville) du stock du produit depuis les remote product-microservice
+│   │   │       ├── fieds_checker.go                     # validation des champs du métier
+│   │   |       └── errors.go                            # erreurs métier
 │   │   │
-│   ├── infrastructure/                                     # 3️⃣ ADAPTERS (extérieur)         
+│   ├── infrastructure/                                  # 3️⃣ ADAPTERS (extérieur)         
 │   │   ├── in/
 │   │   │   └── web/
 │   │   │       ├── handlers/
-|   |   |       |   ├── customer_handler_impl.go            # impl CustomerHandlerService 
-│   │   │       │   └── address_handler_impl.go             # implAddressHandlerService        
-|   |   |       ├── routes/                                 # register routes 
-|   |   |       |   ├── customer_handler.go                 # interface CustomerHandlerService: gin-gonic
-|   |   |       |   ├── address_handler.go                  # implAddressHandlerService : gin-gonic   
-|   |   |       |   └── route_register.go                   # engeristrement des routes: gin                        
-│   │   │       ├── dtos/                                   # ✅  les user dtos                             
-│   │   │       │   ├── customer_request.go
-│   │   │       │   ├── customer_response.go
-│   │   │       │   ├── address_request.go
-│   │   │       │   └── address_response.go
-│   │   │       └── mappers/                                # ✅ mappers de transformation
+|   |   |       |   ├── order_handler_impl.go            # impl OrderHandlerService  
+|   |   |       ├── routes/                              # register routes 
+|   |   |       |   ├── contract.go                      # interface OrderHandlerService: gin-gonic
+|   |   |       |   └── route_register.go                # engeristrement des routes: gin
+|   |   |       |                   
+│   │   │       ├── dtos/                                # ✅  les user dtos                             
+│   │   │       │   ├── order_request.go
+│   │   │       │   ├── order_response.go
+│   │   │       │   ├── customer_response.go             # customerResponse chargé depuis la base (le remote customer-microservice)
+│   │   │       │   ├── product_response.go              # productResponse chargé depuis la base (le remote product-microservice)
+│   │   │       │   ├── stock_response.go                # stockResponse chargé depuis la base (le remote product-microservice)
+│   │   │       │   └── location_response.go             # locationResponse chargé depuis la base (le remote product-microservice)
+|   |   |       |
+│   │   │       └── mappers/                             # ✅ mappers de transformation
+│   │   │           ├── order_mapper.go
 │   │   │           ├── customer_mapper.go
-│   │   │           └── address_mapper.go
+│   │   │           ├── product_mapper.go
+│   │   │           ├── stock_mapper.go
+│   │   │           └── location_mapper.go
 │   │   │
-│   │   ├── out/                                            # ✅ save dans la db
+│   │   ├── out/                                                # ✅ save dans la db
 │   │   |       └── services/                       
-│   │   |           ├── db.go                               # db *sql.DB par exemple
-│   │   |           ├── models/
-│   │   |           │   ├── customer_model.go               # model de données pour la table customers
-│   │   |           │   └── address_model.go                # model de données pour la table addresses
+│   │   |           ├── db.go                                   # db *sql.DB par exemple
+│   │   |           ├── models/                                 # les entités à enregistrer en db
+│   │   |           │   ├── order_model.go                      # model de données pour la table orders
+│   │   |           │   └── order_lines_model.go                # model de données pour la table orderline
 │   │   |           ├── mappers/
-│   │   |           │   ├── customer_mapper.go
-│   │   |           │   └── address_mapper.go
-|   |   |           ├── repositories                        # ✅ la couche de données (db)
-|   |   |           |   ├── customer_address_repos_impl.go  # implementation des customer et address repos 
-│   │   |           └── services/                           # ✅ implementation des outputs ports
-|   |   |               ├── generic_repos.go                # repo generic de centralisation des méthodes
-|   |   |               ├── customer_address_repos.go       # real repo extends generic repo 
-│   │   |               ├── customer_out_port_impl.go       # OutCustomerServiceImpl impl du customer output port
-|   |   |               └── address_out_port_impl.go        # OutAddressServiceImpl impl de address output port
+│   │   |           │   └── order_mapper.go
+|   |   |           ├── repositories                            # ✅ la couche de données (db)
+|   |   |           |   ├── order_repo_impl.go                  # implementation de order repository
+│   │   |           │   └── order_lines_repo_impl.go            #  implementation de orderline repository
+│   │   |           └── services/                               # ✅ implementation des outputs ports
+|   |   |               ├── generic_repos.go                    # repo generic de centralisation des méthodes communes à toutes les entités (Save, findByID,FindAll) 
+|   |   |               ├── repos.go                            # repo extends repo generic,certaines autres méthodes sont spécifiques à une entités sont dans repos
+│   │   |               ├── order_out_port_impl.go              # OutOrderServiceImpl impl du order output port
+│   │   |               ├── order_line_out_port_impl.go         # OutOrderLineServiceImpl impl du orderline output port
+│   │   |               ├── remote_customer_out_port_impl.go    # OutRemoteCustomerServiceImpl impl du remote customer output port
+│   │   |               ├── remote_product_out_port_impl.go     # OutRemoteProductServiceImpl impl du remote procut output port
+│   │   |               ├── remote_stock_out_port_impl.go       # OutRemoteStockServiceImpl impl du remote stock output port
+│   │   |               ├── remote_location_out_port_impl.go    # OutRemoteLocationServiceImpl impl du remote location output port
 │   │   |
-│   |   ├── config/                                         # 4️⃣ la config des env vars
+│   |   ├── config/                                             # 4️⃣ la config des env vars
 │   │       └── config.go
 │   │
 ├── migrations/                                             
-│   └── 001_create_tables.sql                               
+│   └── 001_create_tables.sql                                   # Tables: orders et orderlines                         
 │
 ├── .gitignore
 ├── go.mod
@@ -121,18 +140,20 @@ customer-microservice/
 ```
 Les autres microservices: product-microservice, order-microservice possèdent le même organigramme.
 
-## Architecture Microservices
+## Architecture globale Microservices
 
 ![Architecture HexaShop](microservices.png)
 
 LÉGENDE
 -------
 - Chaque microservice est autonome et possède sa propre base de données
-- Les communications inter-services se font via HTTP REST
+- Les communications inter-microservices se font via HTTP REST
 - OrderSvc orchestre les appels vers les microservices CustomerSvc et ProductSvc
+      - pour vérifier le status (active) du customer sinon refuser la commande
+      - pour vérifier le status (true) du produit sinon réfuser la commande
+      - pour vérifier la quantité de ce produit en stock
 - Kong Api Gateway agit comme point d’entrée unique (API Gateway)
 - Architecture Hexagonale basée sur les principes Ports & Adapters
-
 
 Le domaine ne dépend jamais :
 - ni du HTTP
@@ -145,12 +166,12 @@ Le domaine ne dépend jamais :
 
 ## 4.1 Rôle de Kong
 
-**Kong** agit comme **API Gateway** et constitue le **point d’entrée unique** du système.
+**Kong** agit comme **API Gateway** et constitue le **point d'entrée unique** du système.
 
 Il est responsable de :
-- router les requêtes HTTP vers les microservices
-- centraliser l’accès aux APIs
-- préparer l’ajout de préoccupations transverses :
+- router les requêtes HTTP vers les microservices : Customer / Product / Order
+- centraliser l'accès aux APIs
+- préparer l'ajout de préoccupations transverses :
     - caching,
     - rate limiting,
     - logs,
@@ -160,7 +181,7 @@ La configuration est déclarative via le fichier `./kong.yml`
 
 ---
 
-## 4.2 Flux avec Kong
+## 4.2 Flow d'une request client via Kong
 
 Client
     ↓
@@ -170,9 +191,10 @@ Microservice cible (Customer / Product / Order)
 
 Exemple :  
 
-POST /api/v1/orders
+POST http://localhost:8080/api/v1/orders 
 → Kong
 → order-microservice
+→ customer-microservice
 → product-microservice (stock, location, produit)
 → base de donnée
 
@@ -199,11 +221,11 @@ Gérer les **clients** et leurs informations associées.
 - Exposition d’une API REST
 
 ### Exemples d’API
-- GET /api/v1/customers
-- GET /api/v1/customers/{id}
-- POST /api/v1/customers
-- PUT /api/v1/customers/{id}
-- DELETE /api/v1/customers/{id}
+- GET http://localhost:8080/api/v1/customers
+- GET http://localhost:8080/api/v1/customers/{id}
+- POST http://localhost:8080/api/v1/customers
+- PUT http://localhost:8080//api/v1/customers/{id}
+- DELETE http://localhost:8080/api/v1/customers/{id}
 
 ---
 
@@ -228,14 +250,14 @@ Gérer le **catalogue produit**, les **stocks** et les **localisations**.
 - Consultation et mise à jour
 
 ### APIs principales
-- POST /api/v1/locations
-- POST /api/v1/products
-- POST /api/v1/stocks
-- GET /api/v1/products/{id}
-- GET /api/v1/locations/{id}
-- GET /api/v1/stocks
-- GET /api/v1/stocks/locations/{locationId}/products/{productId}
-- PUT /api/v1/stocks/locations/{locationId}/products/{productId}/set-qte  
+- POST http://localhost:8080/api/v1/locations
+- POST http://localhost:8080/api/v1/products
+- POST http://localhost:8080/api/v1/stocks
+- GET http://localhost:8080/api/v1/products/{id}
+- GET http://localhost:8080/api/v1/locations/{id}
+- GET http://localhost:8080/api/v1/stocks
+- GET http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}
+- PUT http://localhost:8080/api/v1/stocks/locations/{locationId}/products/{productId}/set-qte  
 Body json attendu pour la mise à jour (PUT) :
 ```
 {
@@ -312,3 +334,4 @@ Les erreurs sont renvoyées sous forme :
 }
 
 ```
+
