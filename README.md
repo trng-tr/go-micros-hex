@@ -106,32 +106,30 @@ order-microservice/
 │   │   │           ├── stock_mapper.go
 │   │   │           └── location_mapper.go
 │   │   │
-│   │   ├── out/                                                # ✅ save dans la db
-│   │   |       └── services/                       
-│   │   |           ├── db.go                                   # db *sql.DB par exemple
-│   │   |           ├── models/                                 # les entités à enregistrer en db
-│   │   |           │   ├── order_model.go                      # model de données pour la table orders
-│   │   |           │   └── order_lines_model.go                # model de données pour la table orderline
-│   │   |           ├── mappers/
-│   │   |           │   └── order_mapper.go
-|   |   |           ├── repositories                            # ✅ la couche de données (db)
-|   |   |           |   ├── order_repo_impl.go                  # implementation de order repository
-│   │   |           │   └── order_lines_repo_impl.go            #  implementation de orderline repository
-│   │   |           └── services/                               # ✅ implementation des outputs ports
-|   |   |               ├── generic_repos.go                    # repo generic de centralisation des méthodes communes à toutes les entités (Save, findByID,FindAll) 
-|   |   |               ├── repos.go                            # repo extends repo generic,certaines autres méthodes sont spécifiques à une entités sont dans repos
-│   │   |               ├── order_out_port_impl.go              # OutOrderServiceImpl impl du order output port
-│   │   |               ├── order_line_out_port_impl.go         # OutOrderLineServiceImpl impl du orderline output port
-│   │   |               ├── remote_customer_out_port_impl.go    # OutRemoteCustomerServiceImpl impl du remote customer output port
-│   │   |               ├── remote_product_out_port_impl.go     # OutRemoteProductServiceImpl impl du remote procut output port
-│   │   |               ├── remote_stock_out_port_impl.go       # OutRemoteStockServiceImpl impl du remote stock output port
-│   │   |               ├── remote_location_out_port_impl.go    # OutRemoteLocationServiceImpl impl du remote location output port
+│   │   ├── out/                                        
+│   │   |       ├── models/                                 # les entités à enregistrer en db
+│   │   |       │   ├── order_model.go                      # model de données pour la table orders
+│   │   |       │   └── order_lines_model.go                # model de données pour la table orderline
+│   │   |       ├── mappers/
+│   │   |       │   └── order_mapper.go
+|   |   |       ├── repositories                            # ✅ la couche de données (db)
+|   |   |       |   ├── order_repo_impl.go                  # implementation de order repository
+│   │   |       │   └── order_lines_repo_impl.go            #  implementation de orderline repository
+│   │   |       └── services/                               # ✅ implementation des outputs ports
+|   |   |           ├── generic_repos.go                    # repo generic de centralisation des méthodes communes à toutes les entités (Save, findByID,FindAll) 
+|   |   |           ├── repos.go                            # repo extends repo generic,certaines autres méthodes sont spécifiques à une entités sont dans repos
+│   │   |           ├── order_out_port_impl.go              # OutOrderServiceImpl impl du order output port
+│   │   |           ├── order_line_out_port_impl.go         # OutOrderLineServiceImpl impl du orderline output port
+│   │   |           ├── remote_customer_out_port_impl.go    # OutRemoteCustomerServiceImpl impl du remote customer output port
+│   │   |           ├── remote_product_out_port_impl.go     # OutRemoteProductServiceImpl impl du remote procut output port
+│   │   |           ├── remote_stock_out_port_impl.go       # OutRemoteStockServiceImpl impl du remote stock output port
+│   │   |           └── remote_location_out_port_impl.go    # OutRemoteLocationServiceImpl impl du remote location output port
 │   │   |
-│   |   ├── config/                                             # 4️⃣ la config des env vars
-│   │       └── config.go
+│   |   ├── config/                                         # 4️⃣ la configuration: variables d'environnement, database: db *sql.DB par exemple
+│   │       └── config.go                                   
 │   │
 ├── migrations/                                             
-│   └── 001_create_tables.sql                                   # Tables: orders et orderlines                         
+│   └── 001_create_tables.sql                               # Tables: orders et orderlines                         
 │
 ├── .gitignore
 ├── go.mod
@@ -334,6 +332,7 @@ Les erreurs sont renvoyées sous forme :
 }
 
 ```
+
 
 
 
